@@ -1,0 +1,594 @@
+/* ==========================================================================
+   PREMIUM GAMES CSS OVERHAUL - SANA' AI
+   ========================================================================== */
+
+.games-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+}
+
+.games-grid .pillar-card {
+    padding: 1.5rem;
+    /* Resized cards for neatness */
+    min-height: 180px;
+}
+
+.games-grid .icon-wrapper {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+}
+
+@media (max-width: 900px) {
+    .games-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 600px) {
+    .games-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.game-container {
+    max-width: 750px;
+    width: 95%;
+    text-align: center;
+    background: rgba(10, 15, 26, 0.75) !important;
+    backdrop-filter: blur(25px);
+    border: 1px solid rgba(126, 255, 219, 0.15);
+    /* Mint tint for elegance */
+    box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5), inset 0 0 20px rgba(126, 255, 219, 0.05);
+    border-radius: 25px;
+    padding: 2rem;
+}
+
+#game-title {
+    font-size: 1.7rem;
+    /* Reduced size */
+    font-weight: 800;
+    color: var(--primary-color);
+    /* Mint green */
+    text-shadow: 0 0 10px rgba(126, 255, 219, 0.2);
+    margin-bottom: 2rem;
+    position: relative;
+    display: inline-block;
+}
+
+#game-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 20%;
+    right: 20%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--primary-color), transparent);
+    border-radius: 2px;
+}
+
+#game-status {
+    font-size: 1.2rem;
+    /* Reduced size */
+    font-weight: 700;
+    color: var(--text-dark);
+    /* This is white based on dark mode */
+    margin-top: 1.5rem;
+    padding: 0.8rem 1.5rem;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 12px;
+    display: inline-block;
+    min-width: 250px;
+}
+
+/* ==========================================================================
+   1. PREMIUM TIC-TAC-TOE (Neon Glow Aesthetic)
+   ========================================================================== */
+.tictactoe-board {
+    display: grid;
+    grid-template-columns: repeat(3, 120px);
+    grid-template-rows: repeat(3, 120px);
+    gap: 15px;
+    justify-content: center;
+    margin: 0 auto;
+    padding: 20px;
+    background: #17252a;
+    border-radius: 20px;
+    box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5), 0 15px 30px rgba(0, 0, 0, 0.2);
+}
+
+.tictactoe-cell {
+    background: #2b7a78;
+    border-radius: 15px;
+    font-size: 4rem;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    color: #fff;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3), inset 0 5px 10px rgba(255, 255, 255, 0.2);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.8);
+}
+
+.tictactoe-cell:hover:empty {
+    background: #3aafa9;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 25px rgba(0, 0, 0, 0.4), inset 0 5px 10px rgba(255, 255, 255, 0.3);
+}
+
+.tictactoe-cell:not(:empty) {
+    cursor: default;
+}
+
+/* ==========================================================================
+   2. PREMIUM MEMORY MATCH (3D Depth)
+   ========================================================================== */
+.memory-board {
+    display: grid;
+    grid-template-columns: repeat(4, 100px);
+    grid-template-rows: repeat(4, 100px);
+    gap: 15px;
+    justify-content: center;
+    margin: 0 auto;
+    perspective: 1000px;
+}
+
+.memory-card {
+    background: linear-gradient(135deg, var(--primary-color), var(--primary-light));
+    border-radius: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    cursor: pointer;
+    transition: transform 0.6s cubic-bezier(0.4, 0.0, 0.2, 1), box-shadow 0.3s;
+    transform-style: preserve-3d;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+    border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+.memory-card:hover:not(.flipped) {
+    transform: translateY(-5px) rotateY(10deg);
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.3);
+}
+
+.memory-card.flipped {
+    background: white;
+    transform: rotateY(180deg);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-light);
+}
+
+.memory-card.matched {
+    background: linear-gradient(135deg, #fe7f2d, #ff9f1c);
+    color: white;
+    cursor: default;
+    transform: rotateY(180deg) scale(0.95);
+    box-shadow: 0 0 20px rgba(254, 127, 45, 0.5);
+    border: none;
+}
+
+/* ==========================================================================
+   3. PREMIUM CHESS (Marble & Wood Texture)
+   ========================================================================== */
+.chess-board {
+    display: grid;
+    grid-template-columns: repeat(8, 60px);
+    grid-template-rows: repeat(8, 60px);
+    border: 15px solid #4a3728;
+    border-radius: 10px;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4), inset 0 0 20px rgba(0, 0, 0, 0.8);
+    background: #4a3728;
+}
+
+.chess-cell {
+    width: 60px;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.5rem;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    user-select: none;
+}
+
+.chess-cell.light {
+    background: #f0d9b5;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.chess-cell.dark {
+    background: #b58863;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.2);
+}
+
+.chess-cell:hover {
+    filter: brightness(1.1);
+}
+
+.chess-cell.selected {
+    background: #7ca650 !important;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.4);
+}
+
+.chess-cell.last-move {
+    background: rgba(230, 224, 92, 0.7) !important;
+    box-shadow: inset 0 0 15px rgba(0, 0, 0, 0.2);
+}
+
+.chess-cell.valid-move {
+    position: relative;
+}
+
+.chess-cell.valid-move::after {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+/* ==========================================================================
+   4. PREMIUM SNAKE (Retro Arcade Glass)
+   ========================================================================== */
+.snake-board {
+    display: grid;
+    grid-template-columns: repeat(20, 20px);
+    grid-template-rows: repeat(20, 20px);
+    border: 4px solid var(--primary-color);
+    background: #0f171e;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 10px;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3), 0 0 40px rgba(43, 122, 120, 0.2);
+}
+
+.snake-cell {
+    width: 20px;
+    height: 20px;
+    border: 1px solid rgba(255, 255, 255, 0.02);
+}
+
+.snake-body {
+    background: #32cd32;
+    border-radius: 4px;
+    box-shadow: 0 0 10px #32cd32;
+    border: 1px solid #1e824c;
+}
+
+.snake-food {
+    background: #ff4136;
+    border-radius: 50%;
+    box-shadow: 0 0 15px #ff4136;
+    animation: pulseFood 1s infinite alternate;
+}
+
+@keyframes pulseFood {
+    0% {
+        transform: scale(0.9);
+        box-shadow: 0 0 5px #ff4136;
+    }
+
+    100% {
+        transform: scale(1.1);
+        box-shadow: 0 0 20px #ff4136;
+    }
+}
+
+/* ==========================================================================
+   5. PREMIUM SIMON SAYS (Hyper-realistic Buttons)
+   ========================================================================== */
+.simon-board {
+    display: grid;
+    grid-template-columns: 180px 180px;
+    grid-template-rows: 180px 180px;
+    gap: 15px;
+    justify-content: center;
+    margin: 0 auto;
+    border-radius: 50%;
+    width: 415px;
+    height: 415px;
+    background: #222;
+    padding: 20px;
+    box-shadow: 0 30px 50px rgba(0, 0, 0, 0.5), inset 0 10px 20px rgba(255, 255, 255, 0.1);
+    border: 10px solid #111;
+}
+
+.simon-btn {
+    cursor: pointer;
+    opacity: 0.5;
+    transition: all 0.1s;
+    box-shadow: inset -5px -5px 15px rgba(0, 0, 0, 0.5), inset 5px 5px 15px rgba(255, 255, 255, 0.3);
+}
+
+.simon-btn:active {
+    transform: scale(0.98);
+}
+
+.simon-btn.active {
+    opacity: 1;
+    box-shadow: inset 0 0 50px rgba(255, 255, 255, 0.8), 0 0 40px currentColor;
+    filter: brightness(1.5);
+}
+
+#simon-0 {
+    background: #ff4136;
+    border-top-left-radius: 100%;
+    border-bottom-right-radius: 20px;
+    color: #ff4136;
+}
+
+#simon-1 {
+    background: #0074d9;
+    border-top-right-radius: 100%;
+    border-bottom-left-radius: 20px;
+    color: #0074d9;
+}
+
+#simon-2 {
+    background: #2ecc40;
+    border-bottom-left-radius: 100%;
+    border-top-right-radius: 20px;
+    color: #2ecc40;
+}
+
+#simon-3 {
+    background: #ffdc00;
+    border-bottom-right-radius: 100%;
+    border-top-left-radius: 20px;
+    color: #ffdc00;
+}
+
+/* ==========================================================================
+   6. PREMIUM 2048 (Modern App Aesthetic)
+   ========================================================================== */
+.board-2048 {
+    display: grid;
+    grid-template-columns: repeat(4, 90px);
+    grid-template-rows: repeat(4, 90px);
+    gap: 12px;
+    background: #bbada0;
+    padding: 15px;
+    border-radius: 15px;
+    justify-content: center;
+    margin: 0 auto;
+    box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2), inset 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+.cell-2048 {
+    background: rgba(238, 228, 218, 0.35);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    font-weight: 800;
+    color: #776e65;
+    transition: all 0.15s ease-in-out;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.05);
+}
+
+.cell-2048:not(:empty) {
+    animation: popIn 0.2s cubic-bezier(0.25, 0.8, 0.25, 1);
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes popIn {
+    0% {
+        transform: scale(0);
+    }
+
+    80% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+.cell-2048[data-val="2"] {
+    background: #eee4da;
+}
+
+.cell-2048[data-val="4"] {
+    background: #ede0c8;
+}
+
+.cell-2048[data-val="8"] {
+    background: #f2b179;
+    color: #f9f6f2;
+}
+
+.cell-2048[data-val="16"] {
+    background: #f59563;
+    color: #f9f6f2;
+}
+
+.cell-2048[data-val="32"] {
+    background: #f67c5f;
+    color: #f9f6f2;
+}
+
+.cell-2048[data-val="64"] {
+    background: #f65e3b;
+    color: #f9f6f2;
+}
+
+.cell-2048[data-val="128"] {
+    background: #edcf72;
+    color: #f9f6f2;
+    box-shadow: 0 0 30px rgba(237, 207, 114, 0.5);
+}
+
+.cell-2048[data-val="256"] {
+    background: #edcc61;
+    color: #f9f6f2;
+    box-shadow: 0 0 30px rgba(237, 204, 97, 0.6);
+}
+
+.cell-2048[data-val="512"] {
+    background: #edc850;
+    color: #f9f6f2;
+    box-shadow: 0 0 30px rgba(237, 200, 80, 0.7);
+}
+
+.cell-2048[data-val="1024"] {
+    background: #edc53f;
+    color: #f9f6f2;
+    font-size: 1.5rem;
+    box-shadow: 0 0 30px rgba(237, 197, 63, 0.8);
+}
+
+.cell-2048[data-val="2048"] {
+    background: #edc22e;
+    color: #f9f6f2;
+    font-size: 1.5rem;
+    box-shadow: 0 0 30px rgba(237, 194, 46, 0.9);
+}
+
+/* ==========================================================================
+   MOBILE RESPONSIVE - Game Modal & All Game Boards
+   Only affects screens <= 768px (mobile)
+   ========================================================================== */
+@media (max-width: 768px) {
+
+    /* --- Modal Window --- */
+    .modal {
+        padding: 0;
+        align-items: flex-start;
+        overflow-y: auto;
+    }
+
+    .game-container {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100vh;
+        border-radius: 0;
+        padding: 1rem 0.75rem;
+        margin: 0;
+        overflow-y: auto;
+    }
+
+    .close-btn {
+        top: 10px !important;
+        font-size: 1.8rem !important;
+    }
+
+    #game-title {
+        font-size: 1.1rem !important;
+        margin-bottom: 1rem !important;
+    }
+
+    #game-controls {
+        margin-top: 1rem !important;
+    }
+
+    #game-controls .btn-primary {
+        padding: 0.6rem 1.5rem;
+        font-size: 0.9rem;
+    }
+
+    #game-status {
+        font-size: 0.9rem !important;
+        min-width: unset !important;
+        padding: 0.5rem 0.75rem !important;
+        margin-top: 0.75rem !important;
+    }
+
+    /* --- 1. Tic Tac Toe --- */
+    .tictactoe-board {
+        grid-template-columns: repeat(3, 85px);
+        grid-template-rows: repeat(3, 85px);
+        gap: 10px;
+        padding: 12px;
+    }
+
+    .tictactoe-cell {
+        font-size: 2.8rem;
+        border-radius: 12px;
+    }
+
+    /* --- 2. Memory Match --- */
+    .memory-board {
+        grid-template-columns: repeat(4, 68px);
+        grid-template-rows: repeat(4, 68px);
+        gap: 8px;
+    }
+
+    .memory-card {
+        border-radius: 10px;
+        font-size: 1.8rem;
+    }
+
+    /* --- 3. Chess --- */
+    .chess-board {
+        grid-template-columns: repeat(8, 36px);
+        grid-template-rows: repeat(8, 36px);
+        border-width: 8px;
+        border-radius: 6px;
+    }
+
+    .chess-cell {
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 1.4rem !important;
+    }
+
+    .chess-cell.valid-move::after {
+        width: 12px;
+        height: 12px;
+    }
+
+    /* --- 4. Snake --- */
+    .snake-board {
+        grid-template-columns: repeat(20, 14px);
+        grid-template-rows: repeat(20, 14px);
+        border-width: 3px;
+        border-radius: 8px;
+    }
+
+    .snake-cell {
+        width: 14px !important;
+        height: 14px !important;
+    }
+
+    /* --- 5. Simon Says --- */
+    .simon-board {
+        grid-template-columns: 120px 120px;
+        grid-template-rows: 120px 120px;
+        width: 280px;
+        height: 280px;
+        gap: 10px;
+        padding: 14px;
+        border-width: 7px;
+    }
+
+    /* --- 6. 2048 --- */
+    .board-2048 {
+        grid-template-columns: repeat(4, 70px);
+        grid-template-rows: repeat(4, 70px);
+        gap: 8px;
+        padding: 10px;
+        border-radius: 10px;
+    }
+
+    .cell-2048 {
+        font-size: 1.4rem !important;
+        border-radius: 8px;
+    }
+
+    .cell-2048[data-val="1024"],
+    .cell-2048[data-val="2048"] {
+        font-size: 1rem !important;
+    }
+}

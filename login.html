@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <title>تسجيل الدخول | سَنَع</title>
+    <script src="components/head.js?v=3"></script>
+    <link rel="stylesheet" href="login.css?v=1">
+</head>
+<body>
+    <!-- Shared Navbar (injected by components/navbar.js) -->
+    <div id="navbar-container"></div>
+
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-tabs">
+                <div class="auth-tab active" id="tabLogin" onclick="switchTab('login')" data-i18n="تسجيل الدخول">تسجيل الدخول</div>
+                <div class="auth-tab" id="tabSignup" onclick="switchTab('signup')" data-i18n="إنشاء حساب">إنشاء حساب</div>
+            </div>
+
+            <div id="errorMsg" class="error-message"></div>
+            <div id="successMsg" class="success-message"></div>
+
+            <!-- Login Form -->
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label data-i18n="البريد الإلكتروني">البريد الإلكتروني</label>
+                    <input type="email" id="loginEmail" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="كلمة المرور">كلمة المرور</label>
+                    <input type="password" id="loginPassword" required>
+                </div>
+                <div style="text-align: left; margin-bottom: 1rem;">
+                    <a href="#" onclick="handleForgotPassword()" style="color: var(--text-light); font-size: 0.9rem;" data-i18n="نسيت كلمة المرور؟">نسيت كلمة المرور؟</a>
+                </div>
+                <button type="submit" class="btn-submit" id="btnLoginSubmit">
+                    <span data-i18n="دخول">دخول</span>
+                </button>
+            </form>
+
+            <!-- Signup Form -->
+            <form id="signupForm" style="display: none;" onsubmit="handleSignup(event)">
+                <div class="form-group">
+                    <label data-i18n="الاسم الرباعي">الاسم الرباعي</label>
+                    <input type="text" id="signupName" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="البريد الإلكتروني">البريد الإلكتروني</label>
+                    <input type="email" id="signupEmail" required>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="كلمة المرور">كلمة المرور</label>
+                    <input type="password" id="signupPassword" required>
+                    <small style="color: var(--text-light); display: block; margin-top: 5px;" data-i18n="يجب أن تحتوي كلمة المرور على 8 خانات، تشمل حروفاً كبيرة وصغيرة وأرقاماً ورموزاً.">يجب أن تحتوي كلمة المرور على 8 خانات، تشمل حروفاً كبيرة وصغيرة وأرقاماً ورموزاً.</small>
+                </div>
+                <div class="form-group">
+                    <label data-i18n="تأكيد كلمة المرور">تأكيد كلمة المرور</label>
+                    <input type="password" id="signupConfirmPassword" required>
+                </div>
+                
+                <button type="submit" class="btn-submit" id="btnSignupSubmit">
+                    <span data-i18n="إنشاء الحساب">إنشاء الحساب</span>
+                </button>
+            </form>
+
+            <div style="text-align: center; margin: 1.5rem 0; color: var(--text-light);" data-i18n="أو">أو</div>
+            
+            <button class="btn-google" onclick="handleGoogleLogin()">
+                <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google">
+                <span data-i18n="المتابعة باستخدام جوجل">المتابعة باستخدام جوجل</span>
+            </button>
+        </div>
+    </div>
+    <!-- Shared Footer (injected by components/footer.js) -->
+    <div id="footer-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js?v=2"></script>
+    <script src="components/navbar.js?v=3"></script>
+    <script src="components/footer.js?v=3"></script>
+    <script src="auth-state.js?v=2"></script>
+    <script src="app.js?v=1"></script>
+    <script src="translations.js?v=2"></script>
+    <script src="lang.js?v=2"></script>
+    <script src="login.js?v=2"></script>
+</body>
+</html>

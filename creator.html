@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <title>مختبر الإبداع الذكي | سَنَع</title>
+    <!-- Marked.js for markdown rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="components/head.js?v=3"></script>
+    <link rel="stylesheet" href="creator.css?v=1">
+</head>
+<body>
+    <!-- Shared Navbar (injected by components/navbar.js) -->
+    <div id="navbar-container"></div>
+
+    <div class="creator-page">
+        <!-- Sidebar -->
+        <div class="sidebar" id="historySidebar">
+            <button id="newChatBtn" class="btn-new-chat">+ محادثة جديدة</button>
+            <div class="history-list" id="historyList">
+                <!-- المحادثات السابقة ستظهر هنا -->
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="chat-container">
+                <div id="chatMessages" class="chat-messages">
+                    <div id="welcomeScreen" class="welcome-screen">
+                        <h1 style="color: var(--primary-color); font-size: 2.2rem; margin-bottom: 10px;">كيف يمكنني مساعدتك اليوم؟</h1>
+                        <p style="color: var(--text-light); font-size: 1.2rem;">أنا المبتكر الذكي، يمكنني اختراع أنظمة وعوالم جديدة كلياً، ومناقشتها معك، وتصميم امتحانات لتقييم فهمك.</p>
+                        
+                        <div class="domains-grid">
+                            <div class="domain-card" data-prompt="ابتكر لي جهاز ميكانيكي جديد كلياً"><div class="domain-icon">⚙️</div><h4>جهاز ميكانيكي</h4></div>
+                            <div class="domain-card" data-prompt="ابتكر لي لغة تواصل جديدة لا تعتمد على الصوت"><div class="domain-icon">🗣️</div><h4>لغة تواصل مبتكرة</h4></div>
+                            <div class="domain-card" data-prompt="ابتكر لي نظام أرقام ورياضيات جديد"><div class="domain-icon">🔢</div><h4>نظام أرقام جديد</h4></div>
+                            <div class="domain-card" data-prompt="ابتكر لي نظام اقتصادي مختلف تماماً"><div class="domain-icon">💹</div><h4>نظام اقتصادي</h4></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="input-area-container">
+                    <div class="input-wrapper">
+                        <div id="quickActions" class="quick-actions" style="display: none;">
+                            <button class="btn-quick" data-action="quiz">📝 اختبرني (امتحان ضع دائرة)</button>
+                            <button class="btn-quick" data-action="image">🖼️ توليد صورة أخرى للنظام</button>
+                            <button class="btn-quick" data-action="explain">🤔 اشرح لي المزيد بتفصيل أبسط</button>
+                        </div>
+                        <div style="position: relative;">
+                            <textarea id="chatInput" class="chat-input" placeholder="اكتب فكرتك أو اسألني أي سؤال..."></textarea>
+                            <button id="chatSendBtn" class="btn-send">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js?v=2"></script>
+    <script src="components/navbar.js?v=3"></script>
+    <script src="auth-state.js?v=2"></script>
+    <script src="app.js?v=1"></script>
+    <script src="translations.js?v=2"></script>
+    <script src="lang.js?v=2"></script>
+    <script src="script.js?v=2"></script>
+
+    <!-- API KEY INJECTED HERE SO IT DOESN'T NEED TO BE IN JS --><input type="hidden" id="apiKey" value="YOUR_OPENROUTER_API_KEY_HERE">
+    <script src="creator.js?v=4"></script>
+    
+    <!-- Mobile Sidebar Toggle Script -->
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const mobileSidebarBtn = document.getElementById('mobileSidebarBtn');
+            const historySidebar = document.getElementById('historySidebar');
+            
+            if (mobileSidebarBtn) {
+                mobileSidebarBtn.addEventListener('click', () => {
+                    historySidebar.classList.toggle('show');
+                });
+            }
+            
+            // Hide sidebar when a history item is clicked on mobile
+            document.getElementById('historyList').addEventListener('click', (e) => {
+                if (e.target.tagName === 'BUTTON' && window.innerWidth <= 768) {
+                    historySidebar.classList.remove('show');
+                }
+            });
+            
+            // Hide sidebar when New Chat is clicked on mobile
+            const newChatBtn = document.getElementById('newChatBtn');
+            if (newChatBtn) {
+                newChatBtn.addEventListener('click', () => {
+                    if (window.innerWidth <= 768) historySidebar.classList.remove('show');
+                });
+            }
+        });
+    </script>
+</body>
+</html>

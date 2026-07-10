@@ -1,0 +1,9 @@
+{
+  "name": "sana-ai",
+  "version": "1.0.0",
+  "description": "Sana AI App",
+  "scripts": {},
+  "engines": {
+    "node": "20.x"
+  }
+}

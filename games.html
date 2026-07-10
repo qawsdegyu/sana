@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <title>الألعاب الذهنية | سَنَع</title>
+    <script src="components/head.js?v=3"></script>
+    <link rel="stylesheet" href="games.css?v=3">
+</head>
+<body>
+    <!-- Shared Navbar (injected by components/navbar.js) -->
+    <div id="navbar-container"></div>
+
+    <header class="section" style="padding-top: 150px;">
+        <div class="container">
+            <div class="section-header">
+                <h2 style="font-size: 1.4rem; margin-bottom: 0.5rem;">الألعاب الذهنية (المرحلة 1)</h2>
+                <div class="divider"></div>
+                <p style="margin-top: 1rem; font-size: 1.2rem;">مجموعة من الألعاب المصممة خصيصاً لتنمية القدرات المعرفية والتركيز.</p>
+            </div>
+            
+            <div class="games-grid">
+                <!-- Game 1: Tic-Tac-Toe -->
+                <div class="pillar-card scroll-reveal" onclick="openGame('tictactoe')">
+                    <div class="icon-wrapper">❌⭕</div>
+                    <h3>إكس أو (ضد الذكاء الاصطناعي)</h3>
+                    <p>درب عقلك على التخطيط الاستراتيجي في هذه اللعبة الكلاسيكية.</p>
+                </div>
+
+                <!-- Game 2: Memory Match -->
+                <div class="pillar-card scroll-reveal delay-1" onclick="openGame('memory')">
+                    <div class="icon-wrapper">🎴</div>
+                    <h3>تطابق الذاكرة</h3>
+                    <p>اختبر ذاكرتك وحاول إيجاد البطاقات المتطابقة في أقل عدد من الحركات.</p>
+                </div>
+
+                <!-- Game 3: Chess -->
+                <div class="pillar-card scroll-reveal delay-2" onclick="openGame('chess')">
+                    <div class="icon-wrapper">♟️</div>
+                    <h3>شطرنج (ضد الذكاء الاصطناعي)</h3>
+                    <p>قم بتحدي الذكاء الاصطناعي في لعبة الملوك الاستراتيجية.</p>
+                </div>
+
+                <!-- Game 4: Snake -->
+                <div class="pillar-card scroll-reveal" onclick="openGame('snake')">
+                    <div class="icon-wrapper">🐍</div>
+                    <h3>الثعبان (Snake)</h3>
+                    <p>درب سرعة بديهتك وتخطيطك المكاني.</p>
+                </div>
+
+                <!-- Game 5: Simon Says -->
+                <div class="pillar-card scroll-reveal delay-1" onclick="openGame('simon')">
+                    <div class="icon-wrapper">🔴🔵</div>
+                    <h3>تطابق الألوان (Simon Says)</h3>
+                    <p>لعبة كلاسيكية لتقوية الذاكرة البصرية والسمعية.</p>
+                </div>
+
+                <!-- Game 6: 2048 -->
+                <div class="pillar-card scroll-reveal delay-2" onclick="openGame('game2048')">
+                    <div class="icon-wrapper">🔢</div>
+                    <h3>لغز الأرقام (2048)</h3>
+                    <p>استخدم المنطق الرياضي للوصول إلى الرقم 2048.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Game Modals -->
+    <div id="game-modal" class="modal">
+        <div class="modal-content glass-card game-container">
+            <span class="close-btn" onclick="closeGame()">&times;</span>
+            <h3 id="game-title" style="margin-bottom: 2rem;">عنوان اللعبة</h3>
+            
+            <div id="game-area">
+                <!-- Game boards will be injected here -->
+            </div>
+            
+            <div id="game-controls" style="margin-top: 2rem;">
+                <button class="btn-primary" onclick="resetGame()">إعادة اللعب</button>
+                <p id="game-status" style="margin-top: 1rem; font-weight: bold;"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared Footer (injected by components/footer.js) -->
+    <div id="footer-container"></div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js?v=2"></script>
+    <script src="components/navbar.js?v=3"></script>
+    <script src="components/footer.js?v=3"></script>
+    <script src="auth-state.js?v=2"></script>
+    <script src="app.js?v=1"></script>
+    <script src="translations.js?v=2"></script>
+    <script src="lang.js?v=2"></script>
+    <script src="script.js"></script>
+    <script src="games.js"></script>
+    <script src="games2.js"></script>
+</body>
+</html>
