@@ -1811,3 +1811,23 @@ body.high-contrast .btn-primary {
         display: none !important;
     }
 }
+
+/* =============================================
+   Smooth Page Transitions (سحب الصفحة)
+   ============================================= */
+html {
+    background-color: var(--bg-color) !important;
+}
+
+body {
+    animation: pageReveal 0.25s ease-out forwards;
+}
+
+@keyframes pageReveal {
+    0% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
