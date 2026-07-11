@@ -5,8 +5,67 @@
     <style>body { background-color: #060913; margin: 0; }</style>
     <script src="components/head.js?v=3"></script>
     <link rel="stylesheet" href="login.css?v=1">
+
+  <style>
+    /* Page Transition Overlay */
+    #page-transition-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background-color: #060913; /* Dark theme color matching sana */
+      z-index: 999999;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out;
+      opacity: 1;
+      visibility: visible;
+    }
+    #page-transition-overlay.hidden {
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+    }
+    .page-transition-spinner {
+      width: 50px;
+      height: 50px;
+      border: 3px solid rgba(0, 242, 254, 0.1);
+      border-top: 3px solid #00f2fe; /* Cyan glow color */
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+    }
+    .page-transition-text {
+      color: #00f2fe;
+      margin-top: 20px;
+      font-family: inherit;
+      font-weight: bold;
+      letter-spacing: 1px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; text-shadow: 0 0 10px rgba(0,242,254,0.5); }
+    }
+    body.transitioning {
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body>
+
+  <div id="page-transition-overlay">
+    <div class="page-transition-spinner"></div>
+    <div class="page-transition-text">سَنَع...</div>
+  </div>
+
     <!-- Shared Navbar (injected by components/navbar.js) -->
     <div id="navbar-container"></div>
 
@@ -84,5 +143,44 @@
     <script src="translations.js?v=2"></script>
     <script src="lang.js?v=2"></script>
     <script src="login.js?v=2"></script>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const overlay = document.getElementById('page-transition-overlay');
+      
+      const hideOverlay = () => {
+        if (overlay) {
+          overlay.classList.add('hidden');
+          document.body.classList.remove('transitioning');
+        }
+      };
+
+      document.body.classList.add('transitioning');
+      window.addEventListener('load', hideOverlay);
+      setTimeout(hideOverlay, 2000);
+
+      window.addEventListener('pageshow', (event) => {
+        if (event.persisted) hideOverlay();
+      });
+
+      document.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', function(e) {
+          if (this.target === '_blank') return;
+          const href = this.getAttribute('href');
+          if (!href || href.startsWith('#') || href.startsWith('javascript:') || href.startsWith('mailto:') || href.startsWith('tel:')) return;
+          if (this.hostname !== window.location.hostname && this.hostname !== '') return;
+          if (this.classList.contains('no-transition')) return;
+          if (e.ctrlKey || e.metaKey || e.shiftKey || e.altKey) return;
+
+          e.preventDefault();
+          if (overlay) {
+            document.body.classList.add('transitioning');
+            overlay.classList.remove('hidden');
+          }
+          setTimeout(() => { window.location.href = this.href; }, 150);
+        });
+      });
+    });
+  </script>
 </body>
 </html>
