@@ -228,14 +228,14 @@ function resetBoard() {
 // ----------------------------------------------------
 // This is a highly simplified visual representation with a random-move AI for Phase 1.
 const initialChessBoard = [
-    ['♜','♞','♝','♚','♛','♝','♞','♜'],
+    ['♜','♞','♝','♛','♚','♝','♞','♜'],
     ['♟','♟','♟','♟','♟','♟','♟','♟'],
     ['','','','','','','',''],
     ['','','','','','','',''],
     ['','','','','','','',''],
     ['','','','','','','',''],
     ['♙','♙','♙','♙','♙','♙','♙','♙'],
-    ['♖','♘','♗','♔','♕','♗','♘','♖']
+    ['♖','♘','♗','♕','♔','♗','♘','♖']
 ];
 let chessBoard = [];
 let selectedSquare = null;
@@ -305,6 +305,31 @@ function getValidMovesForWhite(r, c) {
     }
     
     return moves;
+}
+
+// Filter moves that would leave White King under check
+function getLegalMovesForWhite(r, c) {
+    const rawMoves = getValidMovesForWhite(r, c);
+    const legalMoves = [];
+    
+    for (const move of rawMoves) {
+        const tempPiece = chessBoard[move.r][move.c];
+        const origPiece = chessBoard[r][c];
+        
+        chessBoard[move.r][move.c] = origPiece;
+        chessBoard[r][c] = '';
+        
+        const kPos = findChessKing('♔');
+        const inCheck = kPos && isSquareUnderAttack(kPos.r, kPos.c, '♟♜♞♝♛♚');
+        
+        chessBoard[r][c] = origPiece;
+        chessBoard[move.r][move.c] = tempPiece;
+        
+        if (!inCheck) {
+            legalMoves.push(move);
+        }
+    }
+    return legalMoves;
 }
 
 function getValidMovesForBlack(r, c) {
@@ -383,16 +408,29 @@ function initChess() {
 
 function renderChessBoard() {
     let boardHtml = `<div class="chess-board ${chessGameOver ? 'game-over-board' : ''}" style="${chessGameOver ? 'pointer-events: none; opacity: 0.85;' : ''}">`;
+    const whiteKingPos = findChessKing('♔');
+    const blackKingPos = findChessKing('♚');
+    const whiteInCheck = whiteKingPos && isSquareUnderAttack(whiteKingPos.r, whiteKingPos.c, '♟♜♞♝♛♚');
+    const blackInCheck = blackKingPos && isSquareUnderAttack(blackKingPos.r, blackKingPos.c, '♙♖♘♗♕♔');
+
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const color = (r + c) % 2 === 0 ? 'dark' : 'light';
             const piece = chessBoard[r][c];
             
             let extraClasses = '';
+            if ('♟♜♞♝♛♚'.includes(piece)) extraClasses += ' piece-black';
+            else if ('♙♖♘♗♕♔'.includes(piece)) extraClasses += ' piece-white';
+
             if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) extraClasses += ' selected';
             if (lastAIMove && ((lastAIMove.from.r === r && lastAIMove.from.c === c) || (lastAIMove.to.r === r && lastAIMove.to.c === c))) extraClasses += ' last-move';
             if (!chessGameOver && currentValidMoves.some(m => m.r === r && m.c === c)) extraClasses += ' valid-move';
             
+            // Check indicator on Kings
+            if ((whiteInCheck && piece === '♔') || (blackInCheck && piece === '♚')) {
+                extraClasses += ' in-check';
+            }
+
             boardHtml += `<div class="chess-cell ${color}${extraClasses}" id="chess-${r}-${c}" onclick="chessClick(${r}, ${c})">${piece}</div>`;
         }
     }
@@ -442,7 +480,7 @@ function chessClick(r, c) {
         if (!currentValidMoves.some(m => m.r === r && m.c === c)) {
             if ('♙♖♘♗♕♔'.includes(piece)) {
                 selectedSquare = {r, c};
-                currentValidMoves = getValidMovesForWhite(r, c);
+                currentValidMoves = getLegalMovesForWhite(r, c);
                 renderChessBoard();
             }
             return;
@@ -485,7 +523,7 @@ function chessClick(r, c) {
     } else {
         if (piece === '' || !'♙♖♘♗♕♔'.includes(piece)) return;
         selectedSquare = {r, c};
-        currentValidMoves = getValidMovesForWhite(r, c);
+        currentValidMoves = getLegalMovesForWhite(r, c);
         renderChessBoard();
     }
 }
