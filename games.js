@@ -242,6 +242,8 @@ let selectedSquare = null;
 let playerColor = 'white'; // White is bottom
 let lastAIMove = null;
 let currentValidMoves = [];
+let isPlayerTurn = true;
+let chessGameOver = false;
 
 function getValidMovesForWhite(r, c) {
     const piece = chessBoard[r][c];
@@ -373,12 +375,14 @@ function initChess() {
     lastAIMove = null;
     currentValidMoves = [];
     selectedSquare = null;
+    isPlayerTurn = true;
+    chessGameOver = false;
     renderChessBoard();
     document.getElementById('game-status').textContent = window.translateText('دورك (الأبيض)');
 }
 
 function renderChessBoard() {
-    let boardHtml = '<div class="chess-board">';
+    let boardHtml = `<div class="chess-board ${chessGameOver ? 'game-over-board' : ''}" style="${chessGameOver ? 'pointer-events: none; opacity: 0.85;' : ''}">`;
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             const color = (r + c) % 2 === 0 ? 'dark' : 'light';
@@ -387,7 +391,7 @@ function renderChessBoard() {
             let extraClasses = '';
             if (selectedSquare && selectedSquare.r === r && selectedSquare.c === c) extraClasses += ' selected';
             if (lastAIMove && ((lastAIMove.from.r === r && lastAIMove.from.c === c) || (lastAIMove.to.r === r && lastAIMove.to.c === c))) extraClasses += ' last-move';
-            if (currentValidMoves.some(m => m.r === r && m.c === c)) extraClasses += ' valid-move';
+            if (!chessGameOver && currentValidMoves.some(m => m.r === r && m.c === c)) extraClasses += ' valid-move';
             
             boardHtml += `<div class="chess-cell ${color}${extraClasses}" id="chess-${r}-${c}" onclick="chessClick(${r}, ${c})">${piece}</div>`;
         }
@@ -396,8 +400,32 @@ function renderChessBoard() {
     document.getElementById('game-area').innerHTML = boardHtml;
 }
 
+// Helper to find king coordinates
+function findChessKing(kingSymbol) {
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (chessBoard[r][c] === kingSymbol) return {r, c};
+        }
+    }
+    return null;
+}
+
+// Helper to check if a square is under attack by pieces of a given set
+function isSquareUnderAttack(targetR, targetC, attackerPieces) {
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            const piece = chessBoard[r][c];
+            if (attackerPieces.includes(piece)) {
+                const moves = attackerPieces.includes('♟') ? getValidMovesForBlack(r, c) : getValidMovesForWhite(r, c);
+                if (moves.some(m => m.r === targetR && m.c === targetC)) return true;
+            }
+        }
+    }
+    return false;
+}
+
 function chessClick(r, c) {
-    if (document.getElementById('game-status').textContent === window.translateText('دور الذكاء الاصطناعي...')) return;
+    if (chessGameOver || !isPlayerTurn) return;
     const piece = chessBoard[r][c];
     
     if (selectedSquare) {
@@ -420,15 +448,40 @@ function chessClick(r, c) {
             return;
         }
 
+        const capturedPiece = chessBoard[r][c];
         chessBoard[r][c] = chessBoard[sr][sc];
         chessBoard[sr][sc] = '';
+
+        // Pawn promotion (White Pawn reaches top row)
+        if (chessBoard[r][c] === '♙' && r === 0) {
+            chessBoard[r][c] = '♕';
+        }
+
         selectedSquare = null;
         currentValidMoves = [];
-        lastAIMove = null;
+        lastAIMove = { from: {r: sr, c: sc}, to: {r, c} };
+
+        // Check if White captured the Black King
+        if (capturedPiece === '♚') {
+            chessGameOver = true;
+            isPlayerTurn = false;
+            renderChessBoard();
+            document.getElementById('game-status').innerHTML = `<span style="color:#7effdb;">🎉 ${window.translateText('كش ملك! أطحت بملك الذكاء الاصطناعي وفزت باللعبة!')}</span>`;
+            return;
+        }
+
+        isPlayerTurn = false;
         renderChessBoard();
-        document.getElementById('game-status').textContent = window.translateText('دور الذكاء الاصطناعي...');
-        
-        setTimeout(chessAIMove, 1000);
+
+        // Check if White put Black King in Check
+        const blackKingPos = findChessKing('♚');
+        let statusMsg = window.translateText('دور الذكاء الاصطناعي...');
+        if (blackKingPos && isSquareUnderAttack(blackKingPos.r, blackKingPos.c, '♙♖♘♗♕♔')) {
+            statusMsg = window.translateText('كش ملك! الذكاء الاصطناعي تحت التهديد... ⚡');
+        }
+        document.getElementById('game-status').textContent = statusMsg;
+
+        setTimeout(chessAIMove, 800);
     } else {
         if (piece === '' || !'♙♖♘♗♕♔'.includes(piece)) return;
         selectedSquare = {r, c};
@@ -438,25 +491,66 @@ function chessClick(r, c) {
 }
 
 function chessAIMove() {
+    if (chessGameOver) return;
+
     const allPossibleMoves = [];
+    const pieceValues = { '♔': 10000, '♕': 900, '♖': 500, '♗': 300, '♘': 300, '♙': 100 };
+
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
             if ('♟♜♞♝♛♚'.includes(chessBoard[r][c])) {
                 const moves = getValidMovesForBlack(r, c);
                 for (const m of moves) {
-                    allPossibleMoves.push({ from: {r, c}, to: m });
+                    const targetPiece = chessBoard[m.r][m.c];
+                    let score = (pieceValues[targetPiece] || 0) + Math.floor(Math.random() * 40);
+                    // Center control bonus
+                    if (m.r >= 2 && m.r <= 5 && m.c >= 2 && m.c <= 5) score += 15;
+                    allPossibleMoves.push({ from: {r, c}, to: m, score });
                 }
             }
         }
     }
     
-    if (allPossibleMoves.length > 0) {
-        const move = allPossibleMoves[Math.floor(Math.random() * allPossibleMoves.length)];
-        chessBoard[move.to.r][move.to.c] = chessBoard[move.from.r][move.from.c];
-        chessBoard[move.from.r][move.from.c] = '';
-        lastAIMove = move;
+    if (allPossibleMoves.length === 0) {
+        chessGameOver = true;
+        isPlayerTurn = false;
+        renderChessBoard();
+        document.getElementById('game-status').innerHTML = `<span style="color:#7effdb;">🎉 ${window.translateText('كش ملك! لا توجد حركات متبقية للذكاء الاصطناعي، أنت الفائز!')}</span>`;
+        return;
     }
-    
+
+    // Sort moves by score descending
+    allPossibleMoves.sort((a, b) => b.score - a.score);
+    const bestMove = allPossibleMoves[0];
+
+    const capturedPiece = chessBoard[bestMove.to.r][bestMove.to.c];
+    chessBoard[bestMove.to.r][bestMove.to.c] = chessBoard[bestMove.from.r][bestMove.from.c];
+    chessBoard[bestMove.from.r][bestMove.from.c] = '';
+
+    // Pawn promotion (Black Pawn reaches bottom row)
+    if (chessBoard[bestMove.to.r][bestMove.to.c] === '♟' && bestMove.to.r === 7) {
+        chessBoard[bestMove.to.r][bestMove.to.c] = '♛';
+    }
+
+    lastAIMove = bestMove;
+
+    // Check if AI captured White King
+    if (capturedPiece === '♔') {
+        chessGameOver = true;
+        isPlayerTurn = false;
+        renderChessBoard();
+        document.getElementById('game-status').innerHTML = `<span style="color:#ff6b6b;">🤖 ${window.translateText('كش ملك! أطاح الذكاء الاصطناعي بملكك وفاز باللعبة.')}</span>`;
+        return;
+    }
+
+    isPlayerTurn = true;
     renderChessBoard();
-    document.getElementById('game-status').textContent = window.translateText('دورك (الأبيض)');
+
+    // Check if AI put White King in Check
+    const whiteKingPos = findChessKing('♔');
+    let statusMsg = window.translateText('دورك (الأبيض)');
+    if (whiteKingPos && isSquareUnderAttack(whiteKingPos.r, whiteKingPos.c, '♟♜♞♝♛♚')) {
+        statusMsg = window.translateText('كش ملك! ملكك تحت التهديد! ⚠️');
+    }
+    document.getElementById('game-status').textContent = statusMsg;
 }
