@@ -2,6 +2,16 @@
    PREMIUM GAMES CSS OVERHAUL - SANA' AI
    ========================================================================== */
 
+.games-header {
+    padding-top: 140px !important;
+}
+
+@media (max-width: 768px) {
+    .games-header {
+        padding-top: 110px !important;
+    }
+}
+
 .games-grid {
     display: grid;
     grid-template-columns: repeat(3, 1fr);

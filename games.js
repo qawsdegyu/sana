@@ -280,14 +280,28 @@ function getValidMovesForWhite(r, c) {
     };
 
     if (piece === '♙') {
+        // Forward 1 step
         if (r - 1 >= 0 && chessBoard[r - 1][c] === '') {
             moves.push({r: r - 1, c: c});
+            // Forward 2 steps from starting row 6
             if (r === 6 && chessBoard[r - 2][c] === '') {
                 moves.push({r: r - 2, c: c});
             }
         }
-        if (r - 1 >= 0 && c - 1 >= 0 && '♟♜♞♝♛♚'.includes(chessBoard[r - 1][c - 1])) moves.push({r: r - 1, c: c - 1});
-        if (r - 1 >= 0 && c + 1 < 8 && '♟♜♞♝♛♚'.includes(chessBoard[r - 1][c + 1])) moves.push({r: r - 1, c: c + 1});
+        // Diagonal forward left (x) - capture or move
+        if (r - 1 >= 0 && c - 1 >= 0) {
+            const target = chessBoard[r - 1][c - 1];
+            if (target === '' || '♟♜♞♝♛♚'.includes(target)) {
+                moves.push({r: r - 1, c: c - 1});
+            }
+        }
+        // Diagonal forward right (x) - capture or move
+        if (r - 1 >= 0 && c + 1 < 8) {
+            const target = chessBoard[r - 1][c + 1];
+            if (target === '' || '♟♜♞♝♛♚'.includes(target)) {
+                moves.push({r: r - 1, c: c + 1});
+            }
+        }
     }
     else if (piece === '♖') { addLine(-1, 0); addLine(1, 0); addLine(0, -1); addLine(0, 1); }
     else if (piece === '♗') { addLine(-1, -1); addLine(-1, 1); addLine(1, -1); addLine(1, 1); }
@@ -367,14 +381,28 @@ function getValidMovesForBlack(r, c) {
     };
 
     if (piece === '♟') {
+        // Forward 1 step
         if (r + 1 < 8 && chessBoard[r + 1][c] === '') {
             moves.push({r: r + 1, c: c});
+            // Forward 2 steps from starting row 1
             if (r === 1 && chessBoard[r + 2][c] === '') {
                 moves.push({r: r + 2, c: c});
             }
         }
-        if (r + 1 < 8 && c - 1 >= 0 && '♙♖♘♗♕♔'.includes(chessBoard[r + 1][c - 1])) moves.push({r: r + 1, c: c - 1});
-        if (r + 1 < 8 && c + 1 < 8 && '♙♖♘♗♕♔'.includes(chessBoard[r + 1][c + 1])) moves.push({r: r + 1, c: c + 1});
+        // Diagonal forward left (x) - capture or move
+        if (r + 1 < 8 && c - 1 >= 0) {
+            const target = chessBoard[r + 1][c - 1];
+            if (target === '' || '♙♖♘♗♕♔'.includes(target)) {
+                moves.push({r: r + 1, c: c - 1});
+            }
+        }
+        // Diagonal forward right (x) - capture or move
+        if (r + 1 < 8 && c + 1 < 8) {
+            const target = chessBoard[r + 1][c + 1];
+            if (target === '' || '♙♖♘♗♕♔'.includes(target)) {
+                moves.push({r: r + 1, c: c + 1});
+            }
+        }
     }
     else if (piece === '♜') { addLine(-1, 0); addLine(1, 0); addLine(0, -1); addLine(0, 1); }
     else if (piece === '♝') { addLine(-1, -1); addLine(-1, 1); addLine(1, -1); addLine(1, 1); }
