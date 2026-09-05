@@ -29,7 +29,7 @@
             <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
                 <div class="form-floating">
                     <label for="adminEmail">البريد الإلكتروني للمشرف</label>
-                    <input type="email" id="adminEmail" class="auth-input" placeholder="admin@sana.ai" required>
+                    <input type="email" id="adminEmail" class="auth-input" placeholder="admin@sana.com" required>
                 </div>
 
                 <div class="form-floating">
@@ -42,16 +42,6 @@
                     <span id="loginSpinner" style="display: none;">⏳</span>
                 </button>
             </form>
-
-            <div class="auth-helper-box">
-                <strong style="color: var(--primary-light); display: block; margin-bottom: 4px;">ℹ️ ملاحظة بخصوص Supabase:</strong>
-                النظام مهيأ للمصادقة عبر Supabase Auth. إذا لم تقم بإنشاء حسابك بعد في سوبابيز، يمكنك الدخول تجريبياً باستخدام البريد الافتراضي <code>admin@sana.ai</code> أو النقر أدناه:
-                <div style="margin-top: 8px; text-align: center;">
-                    <button type="button" onclick="bypassLoginForDemo()" style="background: rgba(0, 242, 254, 0.15); border: 1px solid rgba(0, 242, 254, 0.4); color: var(--primary); padding: 5px 12px; border-radius: 8px; font-family: inherit; font-size: 0.8rem; cursor: pointer; font-weight: bold;">
-                        🚀 دخول سريع كمسؤول (وضع التهيئة)
-                    </button>
-                </div>
-            </div>
 
             <a href="index.html" class="auth-back-link">← العودة إلى الموقع الرئيسي</a>
         </div>
@@ -940,26 +930,29 @@
 
                             <div class="sql-box">
                                 <button type="button" class="btn-copy-sql" onclick="copySqlScript()">📋 نسخ كود الـ SQL</button>
-                                <pre class="sql-code" id="sqlCodeBlock">-- 1. التأكد من وجود الجدول في schema public
+                                <pre class="sql-code" id="sqlCodeBlock">-- 1. إنشاء جدول محتوى الموقع إذا لم يكن موجوداً
 CREATE TABLE IF NOT EXISTS public.site_content (
     id TEXT PRIMARY KEY,
     content JSONB NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 2. إعطاء الصلاحيات لجميع الأدوار
+-- 2. إعطاء الصلاحيات الكاملة لجميع الأدوار
 GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON TABLE public.site_content TO anon, authenticated, service_role;
 
--- 3. تعطيل RLS لتجاوز أي مشاكل أذونات وجعل الجدول يظهر فوراً في الـ API
+-- 3. تعطيل RLS لتسهيل حفظ وتعديل المحتوى فوراً وبدون تعقيد سياسات
 ALTER TABLE public.site_content DISABLE ROW LEVEL SECURITY;
 
--- 4. إدخال سجل أولي للموقع
+-- 4. إدخال أو تحديث سجل الموقع الأولي
 INSERT INTO public.site_content (id, content, updated_at)
 VALUES ('main_site', '{"status":"connected"}'::jsonb, now())
 ON CONFLICT (id) DO UPDATE SET updated_at = now();
 
--- 5. إشعار PostgREST بتحديث كاش الجداول فوراً
+-- 5. تأكيد حساب الأدمن فوراً لتجاوز خطأ التفعيل
+UPDATE auth.users SET email_confirmed_at = now() WHERE email = 'admin@sana.com';
+
+-- 6. إشعار محرك PostgREST بتحديث كاش الجداول فوراً
 NOTIFY pgrst, 'reload schema';</pre>
                             </div>
 

@@ -14,28 +14,22 @@ let hasUnsavedChanges = false;
 // ==========================================================================
 
 async function checkAdminSession() {
-    // 1. Check Supabase Auth
-    let user = null;
-    if (typeof supabaseClient !== 'undefined') {
-        try {
-            const { data: { session } } = await supabaseClient.auth.getSession();
-            if (session && session.user) {
-                user = session.user;
-            }
-        } catch (e) {
-            console.warn("Supabase session check:", e);
-        }
-    }
-
-    // 2. Check Local Admin Session
-    const localSession = localStorage.getItem('sana_admin_session');
-
-    if (user || localSession) {
-        const email = user ? user.email : (localSession || "admin@sana.ai");
-        grantAdminAccess(email);
-    } else {
+    if (typeof supabaseClient === 'undefined' || !supabaseClient) {
         showLoginOverlay();
+        return;
     }
+
+    try {
+        const { data: { session }, error } = await supabaseClient.auth.getSession();
+        if (session && session.user) {
+            grantAdminAccess(session.user.email);
+            return;
+        }
+    } catch (e) {
+        console.warn("Supabase session check:", e);
+    }
+
+    showLoginOverlay();
 }
 
 function grantAdminAccess(email) {
@@ -64,38 +58,32 @@ async function handleAdminLogin(e) {
     spinner.style.display = 'inline-block';
 
     try {
-        let loggedIn = false;
+        if (!supabaseClient) {
+            throw new Error("لم يتم تهيئة اتصال Supabase بشكل صحيح.");
+        }
 
-        // Try Supabase Auth first
-        if (typeof supabaseClient !== 'undefined') {
-            try {
-                const { data, error } = await supabaseClient.auth.signInWithPassword({
-                    email,
-                    password
-                });
+        const { data, error } = await supabaseClient.auth.signInWithPassword({
+            email,
+            password
+        });
 
-                if (data && data.session) {
-                    loggedIn = true;
-                    localStorage.setItem('sana_admin_session', email);
-                    showToast("تم تسجيل الدخول بنجاح عبر سوبابيز!", "success");
-                    grantAdminAccess(email);
-                    return;
-                }
-            } catch (authErr) {
-                console.warn("Supabase auth error:", authErr);
+        if (error) {
+            const msg = (error.message || "").toLowerCase();
+            if (msg.includes("email not confirmed")) {
+                throw new Error("الحساب بانتظار التأكيد: اذهب إلى Supabase > Authentication > Users واضغط (...) بجانب admin@sana.com ثم Confirm email.");
             }
+            if (msg.includes("invalid login credentials")) {
+                throw new Error("بيانات الدخول غير صحيحة، أو أن الحساب بحاجة لتأكيد في سوبابيز.");
+            }
+            throw new Error(error.message);
         }
 
-        // Demo fallback for initial setup when user hasn't registered yet in Supabase
-        if (email.toLowerCase() === 'admin@sana.ai' || password === 'admin123456' || password === 'admin') {
-            localStorage.setItem('sana_admin_session', email);
-            showToast("تم الدخول بنجاح في وضع الإدارة والتكوين!", "success");
-            grantAdminAccess(email);
-            return;
+        if (!data || !data.session) {
+            throw new Error("تعذر بدء جلسة المشرف، يرجى المحاولة مرة أخرى.");
         }
 
-        // If credentials failed and not demo
-        throw new Error("البريد الإلكتروني أو كلمة المرور غير صحيحة. يمكنك الدخول بـ admin@sana.ai أو استخدام زر الدخول السريع حتى تقوم بإعداد حسابك في سوبابيز.");
+        showToast("تم تسجيل الدخول بنجاح عبر سوبابيز!", "success");
+        grantAdminAccess(data.user.email);
 
     } catch (err) {
         showToast(err.message || "فشل تسجيل الدخول", "error");
@@ -105,27 +93,19 @@ async function handleAdminLogin(e) {
     }
 }
 
-function bypassLoginForDemo() {
-    const demoEmail = "admin@sana.ai";
-    localStorage.setItem('sana_admin_session', demoEmail);
-    showToast("تم تفعيل وضع المشرف المؤقت. يمكنك الآن ربط سوبابيز وتعديل المحتوى!", "success");
-    grantAdminAccess(demoEmail);
-}
-
 async function handleAdminLogout() {
     if (confirm("هل أنت متأكد من رغبتك في تسجيل الخروج من لوحة التحكم؟")) {
-        if (typeof supabaseClient !== 'undefined') {
+        if (typeof supabaseClient !== 'undefined' && supabaseClient) {
             try {
                 await supabaseClient.auth.signOut();
             } catch (e) {
                 console.warn("SignOut error:", e);
             }
         }
-        localStorage.removeItem('sana_admin_session');
         showToast("تم تسجيل الخروج بنجاح", "info");
         setTimeout(() => {
             window.location.reload();
-        }, 600);
+        }, 400);
     }
 }
 
@@ -455,8 +435,8 @@ function initSupabaseCredentialsForm() {
     const keyInput = document.getElementById('supabaseKeyInput');
     if (!urlInput || !keyInput) return;
 
-    const currentUrl = localStorage.getItem('sana_supabase_url') || 'https://faovafodbyauohwremth.supabase.co';
-    const currentKey = localStorage.getItem('sana_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhb3ZhZm9kYnlhdW9od3JlbXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNTU4ODEsImV4cCI6MjA5ODgzMTg4MX0.p8QvMw3jj_Nx3VdJ-0WZFRg7CGnA8dI-ZJYyI8M4qh4';
+    const currentUrl = localStorage.getItem('sana_supabase_url') || 'https://kpzuyjtjixiwgheucudi.supabase.co';
+    const currentKey = localStorage.getItem('sana_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtwenV5anRqaXhpd2doZXVjdWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MTM2NDYsImV4cCI6MjEwMzk4OTY0Nn0.xnnDn4U7eVimq3BoE4slmQW41BdGfGvLAs_wTbocawQ';
 
     urlInput.value = currentUrl;
     keyInput.value = currentKey;
@@ -486,8 +466,8 @@ function resetDefaultSupabaseConfig() {
     localStorage.removeItem('sana_supabase_url');
     localStorage.removeItem('sana_supabase_key');
 
-    const defaultUrl = 'https://faovafodbyauohwremth.supabase.co';
-    const defaultKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhb3ZhZm9kYnlhdW9od3JlbXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNTU4ODEsImV4cCI6MjA5ODgzMTg4MX0.p8QvMw3jj_Nx3VdJ-0WZFRg7CGnA8dI-ZJYyI8M4qh4';
+    const defaultUrl = 'https://kpzuyjtjixiwgheucudi.supabase.co';
+    const defaultKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtwenV5anRqaXhpd2doZXVjdWRpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg0MTM2NDYsImV4cCI6MjEwMzk4OTY0Nn0.xnnDn4U7eVimq3BoE4slmQW41BdGfGvLAs_wTbocawQ';
 
     const urlInput = document.getElementById('supabaseUrlInput');
     const keyInput = document.getElementById('supabaseKeyInput');
