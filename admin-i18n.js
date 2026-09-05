@@ -38,9 +38,12 @@ const ADMIN_I18N_MAP = {
     "محفوظ محلياً وسحابياً": "Saved to Cloud & Local",
     "محفوظ محلياً (جاهز لسوبابيز)": "Saved locally (ready for Supabase)",
 
-    // Status Bar
+    // Status Bar & Language Switchers
+    "لغة اللوحة والمحتوى:": "Dashboard & Content Language:",
+    "لغة لوحة التحكم والمحتوى:": "Dashboard & Content Language:",
     "🇸🇦 وضع التحرير: اللغة العربية (AR)": "🇸🇦 Editing Mode: Arabic (AR)",
     "يتم الآن تعديل وحفظ نصوص الموقع المخصصة للنسخة العربية.": "Currently editing and saving website content for the Arabic version.",
+    "يتم تعديل وحفظ نصوص الموقع المخصصة للنسخة العربية.": "Currently editing and saving website content for the Arabic version.",
     "استعادة النموذج العربي المعتمد": "Restore Approved Arabic Template",
     "🇬🇧 وضع التحرير: English (EN)": "🇬🇧 Editing Mode: English (EN)",
     "يتم الآن تعديل وحفظ نصوص الموقع المعروضة للزوار باللغة الإنجليزية.": "Currently editing and saving website content for the English version.",
@@ -349,6 +352,9 @@ function applyAdminLanguage(lang) {
         if (['SCRIPT', 'STYLE', 'CODE', 'PRE'].includes(parent.tagName)) continue;
         if (parent.classList && (parent.classList.contains('sql-code') || parent.id === 'kbModalFileText')) continue;
         
+        // Skip language switcher buttons so labels and flags remain intact
+        if (parent.closest('.btn-lang-tab') || parent.closest('.btn-sidebar-lang') || parent.closest('.btn-status-lang')) continue;
+
         // Do not alter content inside form controls (inputs / textareas)
         if (['INPUT', 'TEXTAREA', 'SELECT'].includes(parent.tagName)) continue;
 
@@ -376,16 +382,20 @@ function applyAdminLanguage(lang) {
         }
     });
 
-    // 4. Update language toggle buttons in Topbar & Login Box
-    const btnAr = document.getElementById('btnAdminLangAr');
-    const btnEn = document.getElementById('btnAdminLangEn');
-    if (btnAr) btnAr.classList.toggle('active', !isEn);
-    if (btnEn) btnEn.classList.toggle('active', isEn);
+    // 4. Update language toggle buttons across all locations (Topbar, Sidebar, Status bar, Login Box)
+    const toggleButtonPairs = [
+        ['btnAdminLangAr', 'btnAdminLangEn'],
+        ['btnSidebarLangAr', 'btnSidebarLangEn'],
+        ['btnStatusLangAr', 'btnStatusLangEn'],
+        ['btnLoginLangAr', 'btnLoginLangEn']
+    ];
 
-    const btnLoginAr = document.getElementById('btnLoginLangAr');
-    const btnLoginEn = document.getElementById('btnLoginLangEn');
-    if (btnLoginAr) btnLoginAr.classList.toggle('active', !isEn);
-    if (btnLoginEn) btnLoginEn.classList.toggle('active', isEn);
+    toggleButtonPairs.forEach(([arId, enId]) => {
+        const btnAr = document.getElementById(arId);
+        const btnEn = document.getElementById(enId);
+        if (btnAr) btnAr.classList.toggle('active', !isEn);
+        if (btnEn) btnEn.classList.toggle('active', isEn);
+    });
 
     // 5. Update Status bar text
     const badgeEl = document.getElementById('langBadge');

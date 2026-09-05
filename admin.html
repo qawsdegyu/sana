@@ -82,6 +82,21 @@
                         <span>CONTROL PANEL</span>
                     </div>
                 </div>
+
+                <!-- Prominent Language Switcher right in Sidebar -->
+                <div class="sidebar-lang-container">
+                    <div class="sidebar-lang-title">
+                        <span>🌐</span> <span>لغة اللوحة والمحتوى:</span>
+                    </div>
+                    <div class="sidebar-lang-toggle">
+                        <button type="button" class="btn-sidebar-lang active" id="btnSidebarLangAr" onclick="switchAdminContentLang('ar')">
+                            <span class="flag">🇸🇦</span> <span>العربية</span>
+                        </button>
+                        <button type="button" class="btn-sidebar-lang" id="btnSidebarLangEn" onclick="switchAdminContentLang('en')">
+                            <span class="flag">🇬🇧</span> <span>English</span>
+                        </button>
+                    </div>
+                </div>
             </div>
 
             <nav class="sidebar-nav">
@@ -195,6 +210,14 @@
                         <span class="indicator-sub" id="langSubText">يتم تعديل وحفظ نصوص الموقع المخصصة للنسخة العربية.</span>
                     </div>
                     <div class="lang-status-actions">
+                        <div class="status-lang-tabs">
+                            <button type="button" class="btn-status-lang active" id="btnStatusLangAr" onclick="switchAdminContentLang('ar')">
+                                <span>🇸🇦 العربية</span>
+                            </button>
+                            <button type="button" class="btn-status-lang" id="btnStatusLangEn" onclick="switchAdminContentLang('en')">
+                                <span>🇬🇧 English</span>
+                            </button>
+                        </div>
                         <button type="button" class="btn-lang-helper" id="btnLangAutofill" onclick="autoFillCurrentLangDefaults()">
                             <span>✨</span> <span id="btnLangAutofillText">استعادة النموذج العربي المعتمد</span>
                         </button>
