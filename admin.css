@@ -490,10 +490,134 @@ body::after {
     font-weight: 700;
 }
 
-.topbar-actions {
+/* Bilingual Language Switcher in Topbar */
+.admin-lang-tabs {
+    display: flex;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid var(--border-subtle);
+    border-radius: 12px;
+    padding: 3px;
+    gap: 3px;
+}
+
+.btn-lang-tab {
+    padding: 0.45rem 0.9rem;
+    border-radius: 9px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.85rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
     display: flex;
     align-items: center;
+    gap: 6px;
+    transition: var(--transition-smooth);
+}
+
+.btn-lang-tab:hover {
+    color: #fff;
+    background: rgba(255, 255, 255, 0.05);
+}
+
+.btn-lang-tab.active {
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.2), rgba(126, 255, 219, 0.15));
+    border: 1px solid rgba(0, 242, 254, 0.4);
+    color: var(--primary-light);
+    box-shadow: 0 0 12px rgba(0, 242, 254, 0.2);
+}
+
+.btn-lang-tab .flag {
+    font-size: 1rem;
+}
+
+/* Bilingual Status Bar */
+.lang-status-bar {
+    background: rgba(15, 23, 42, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
     gap: 1rem;
+    backdrop-filter: blur(10px);
+    transition: var(--transition-smooth);
+}
+
+.lang-status-bar.en-mode {
+    border-color: rgba(99, 102, 241, 0.3);
+    background: rgba(30, 27, 75, 0.5);
+}
+
+.lang-status-indicator {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.indicator-badge {
+    padding: 0.35rem 0.85rem;
+    border-radius: 50px;
+    font-size: 0.82rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.indicator-badge.ar {
+    background: rgba(0, 242, 254, 0.15);
+    color: var(--primary);
+    border: 1px solid rgba(0, 242, 254, 0.3);
+}
+
+.indicator-badge.en {
+    background: rgba(99, 102, 241, 0.2);
+    color: #a5b4fc;
+    border: 1px solid rgba(99, 102, 241, 0.4);
+}
+
+.indicator-sub {
+    font-size: 0.86rem;
+    color: var(--text-muted);
+}
+
+.btn-lang-helper {
+    padding: 0.45rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.05);
+    color: #e2e8f0;
+    font-size: 0.82rem;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: var(--transition-smooth);
+}
+
+.btn-lang-helper:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border-color: rgba(255, 255, 255, 0.25);
+    transform: translateY(-1px);
+}
+
+/* English editing mode input direction adjustments */
+.admin-app.lang-mode-en .form-control {
+    direction: ltr;
+    text-align: left;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.admin-app.lang-mode-en .form-label {
+    text-align: right;
 }
 
 .sync-badge {

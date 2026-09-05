@@ -6,7 +6,8 @@
  */
 
 // State variables
-let currentContent = {};
+let currentContent = { ar: {}, en: {} };
+let currentAdminLang = 'ar';
 let hasUnsavedChanges = false;
 
 // ==========================================================================
@@ -117,22 +118,110 @@ async function handleAdminLogout() {
 async function initDashboard() {
     // 1. Fetch current content (local + remote)
     currentContent = getLocalSiteContent();
-    populateForms(currentContent);
+    
+    // 2. Setup language view (default to AR)
+    switchAdminContentLang('ar', false);
 
-    // 2. Setup navigation tabs
+    // 3. Setup navigation tabs
     setupTabNavigation();
 
-    // 3. Setup Supabase config form & test connection
+    // 4. Setup Supabase config form & test connection
     initSupabaseCredentialsForm();
     testSupabaseConnection();
 
-    // 4. Remote content fetch in background
+    // 5. Remote content fetch in background
     fetchRemoteSiteContent().then(remoteContent => {
         if (remoteContent) {
             currentContent = remoteContent;
-            populateForms(currentContent);
+            populateForms(currentContent[currentAdminLang]);
         }
     });
+}
+
+function switchAdminContentLang(lang, shouldCollect = true) {
+    if (shouldCollect) {
+        collectCurrentLangFormData();
+    }
+
+    currentAdminLang = lang;
+
+    // 1. Update buttons
+    const btnAr = document.getElementById('btnAdminLangAr');
+    const btnEn = document.getElementById('btnAdminLangEn');
+    if (btnAr) btnAr.classList.toggle('active', lang === 'ar');
+    if (btnEn) btnEn.classList.toggle('active', lang === 'en');
+
+    // 2. Update status bar and app direction
+    const appEl = document.getElementById('adminApp');
+    const barEl = document.getElementById('langStatusBar');
+    const badgeEl = document.getElementById('langBadge');
+    const subTextEl = document.getElementById('langSubText');
+    const autofillTextEl = document.getElementById('btnLangAutofillText');
+
+    if (lang === 'en') {
+        if (appEl) appEl.classList.add('lang-mode-en');
+        if (barEl) barEl.classList.add('en-mode');
+        if (badgeEl) {
+            badgeEl.className = 'indicator-badge en';
+            badgeEl.textContent = '🇬🇧 وضع التحرير: English (EN)';
+        }
+        if (subTextEl) {
+            subTextEl.textContent = 'يتم الآن تعديل وحفظ نصوص الموقع المعروضة للزوار باللغة الإنجليزية.';
+        }
+        if (autofillTextEl) {
+            autofillTextEl.textContent = 'استيراد النموذج الإنجليزي المعتمد (Auto-Fill)';
+        }
+    } else {
+        if (appEl) appEl.classList.remove('lang-mode-en');
+        if (barEl) barEl.classList.remove('en-mode');
+        if (badgeEl) {
+            badgeEl.className = 'indicator-badge ar';
+            badgeEl.textContent = '🇸🇦 وضع التحرير: اللغة العربية (AR)';
+        }
+        if (subTextEl) {
+            subTextEl.textContent = 'يتم الآن تعديل وحفظ نصوص الموقع المخصصة للنسخة العربية.';
+        }
+        if (autofillTextEl) {
+            autofillTextEl.textContent = 'استعادة النموذج العربي المعتمد';
+        }
+    }
+
+    // 3. Populate form fields with selected language content
+    if (!currentContent[currentAdminLang]) {
+        currentContent[currentAdminLang] = (lang === 'en') 
+            ? JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT_EN))
+            : JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT_AR));
+    }
+
+    populateForms(currentContent[currentAdminLang]);
+}
+
+function autoFillCurrentLangDefaults() {
+    const isEn = (currentAdminLang === 'en');
+    const langName = isEn ? "الإنجليزية (English)" : "العربية";
+    
+    if (confirm(`هل أنت متأكد من استيراد النموذج الافتراضي المعتمد للغة ${langName}؟ ستتمكن من مراجعته وتعديل أي جزء منه بحرية.`)) {
+        if (isEn) {
+            const defaults = JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT_EN));
+            // Inherit custom images from Arabic if present
+            if (currentContent.ar && currentContent.ar.hero && currentContent.ar.hero.image) {
+                defaults.hero.image = currentContent.ar.hero.image;
+            }
+            if (currentContent.ar && currentContent.ar.sandbox && currentContent.ar.sandbox.image) {
+                defaults.sandbox.image = currentContent.ar.sandbox.image;
+            }
+            currentContent.en = defaults;
+            populateForms(currentContent.en);
+            markUnsavedChanges();
+            showToast("تم ملء النموذج الإنجليزي النموذجي بنجاح! راجعه واضغط 'حفظ كافة التعديلات' للاعتماد.", "success");
+        } else {
+            const defaults = JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT_AR));
+            currentContent.ar = defaults;
+            populateForms(currentContent.ar);
+            markUnsavedChanges();
+            showToast("تم استعادة النموذج العربي المعتمد بنجاح!", "success");
+        }
+    }
 }
 
 function setupTabNavigation() {
@@ -196,9 +285,17 @@ function populateForms(content) {
     // Fill all inputs with [data-model]
     document.querySelectorAll('[data-model]').forEach(el => {
         const path = el.getAttribute('data-model');
-        const val = getByPath(content, path);
+        let val = getByPath(content, path);
+
+        // Fallback for images or links from the other language if empty
+        if ((val === undefined || val === null || val === '') && currentContent.ar) {
+            val = getByPath(currentContent.ar, path);
+        }
+
         if (val !== undefined && val !== null) {
             el.value = val;
+        } else {
+            el.value = '';
         }
 
         // Attach change listener to mark unsaved
@@ -210,42 +307,51 @@ function populateForms(content) {
         }
     });
 
-    // Update Image Previews
-    if (content.hero && content.hero.image) {
+    // Update Image Previews (with fallback to AR image)
+    const heroImg = (content.hero && content.hero.image) || (currentContent.ar && currentContent.ar.hero && currentContent.ar.hero.image);
+    if (heroImg) {
         const heroPrev = document.getElementById('preview_hero_image');
-        if (heroPrev) heroPrev.src = content.hero.image;
+        if (heroPrev) heroPrev.src = heroImg;
     }
 
-    if (content.sandbox && content.sandbox.image) {
+    const sbImg = (content.sandbox && content.sandbox.image) || (currentContent.ar && currentContent.ar.sandbox && currentContent.ar.sandbox.image);
+    if (sbImg) {
         const sbPrev = document.getElementById('preview_sandbox_image');
-        if (sbPrev) sbPrev.src = content.sandbox.image;
+        if (sbPrev) sbPrev.src = sbImg;
     }
 }
 
-function collectFormData() {
-    const content = JSON.parse(JSON.stringify(currentContent));
+function collectCurrentLangFormData() {
+    if (!currentContent) currentContent = { ar: {}, en: {} };
+    if (!currentContent[currentAdminLang]) currentContent[currentAdminLang] = {};
 
     document.querySelectorAll('[data-model]').forEach(el => {
         const path = el.getAttribute('data-model');
         const val = el.value;
-        setByPath(content, path, val);
+        setByPath(currentContent[currentAdminLang], path, val);
     });
 
-    return content;
+    // If an image was configured, ensure both languages keep it in sync
+    const heroImgInput = document.querySelector('[data-model="hero.image"]');
+    if (heroImgInput && heroImgInput.value) {
+        if (!currentContent.ar.hero) currentContent.ar.hero = {};
+        if (!currentContent.en.hero) currentContent.en.hero = {};
+        currentContent.ar.hero.image = heroImgInput.value;
+        currentContent.en.hero.image = heroImgInput.value;
+    }
+
+    const sbImgInput = document.querySelector('[data-model="sandbox.image"]');
+    if (sbImgInput && sbImgInput.value) {
+        if (!currentContent.ar.sandbox) currentContent.ar.sandbox = {};
+        if (!currentContent.en.sandbox) currentContent.en.sandbox = {};
+        currentContent.ar.sandbox.image = sbImgInput.value;
+        currentContent.en.sandbox.image = sbImgInput.value;
+    }
 }
 
-function setByPath(obj, path, value) {
-    if (!obj || !path) return;
-    const parts = path.split('.');
-    let current = obj;
-    for (let i = 0; i < parts.length - 1; i++) {
-        const part = parts[i];
-        if (!current[part] || typeof current[part] !== 'object') {
-            current[part] = {};
-        }
-        current = current[part];
-    }
-    current[parts[parts.length - 1]] = value;
+function collectFormData() {
+    collectCurrentLangFormData();
+    return currentContent;
 }
 
 function markUnsavedChanges() {
@@ -371,6 +477,9 @@ function closeLivePreview() {
 function refreshPreviewFrame() {
     const iframe = document.getElementById('previewIframe');
     if (iframe) {
+        try {
+            localStorage.setItem('sana_lang', currentAdminLang);
+        } catch (e) {}
         iframe.src = 'index.html?t=' + Date.now();
     }
 }

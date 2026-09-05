@@ -137,6 +137,15 @@
                 </div>
 
                 <div class="topbar-actions">
+                    <div class="admin-lang-tabs" id="adminLangTabs">
+                        <button type="button" class="btn-lang-tab active" id="btnAdminLangAr" onclick="switchAdminContentLang('ar')">
+                            <span class="flag">🇸🇦</span> <span>العربية</span>
+                        </button>
+                        <button type="button" class="btn-lang-tab" id="btnAdminLangEn" onclick="switchAdminContentLang('en')">
+                            <span class="flag">🇬🇧</span> <span>English</span>
+                        </button>
+                    </div>
+
                     <div class="sync-badge" id="topbarSyncBadge">
                         <span class="status-dot"></span>
                         <span id="syncBadgeText">جاهز للحفظ</span>
@@ -155,11 +164,24 @@
             <!-- Main Content Area with Dynamic Panels -->
             <main class="admin-content">
 
+                <!-- STICKY BILINGUAL STATUS BAR -->
+                <div class="lang-status-bar" id="langStatusBar">
+                    <div class="lang-status-indicator">
+                        <span class="indicator-badge ar" id="langBadge">🇸🇦 وضع التحرير: اللغة العربية (AR)</span>
+                        <span class="indicator-sub" id="langSubText">يتم تعديل وحفظ نصوص الموقع المخصصة للنسخة العربية.</span>
+                    </div>
+                    <div class="lang-status-actions">
+                        <button type="button" class="btn-lang-helper" id="btnLangAutofill" onclick="autoFillCurrentLangDefaults()">
+                            <span>✨</span> <span id="btnLangAutofillText">استعادة النموذج العربي المعتمد</span>
+                        </button>
+                    </div>
+                </div>
+
                 <!-- TAB 1: OVERVIEW -->
                 <section id="tab-overview" class="panel-section active">
                     <div class="panel-header">
                         <h1><i>📊</i> نظرة عامة وإدارة المحتوى</h1>
-                        <p>مرحباً بك في لوحة تحكم موقع سَنَع. يمكنك من هنا تعديل النصوص، الفقرات، العناوين، واستبدال الصور فورياً.</p>
+                        <p>مرحباً بك في لوحة تحكم موقع سَنَع. يمكنك من هنا تعديل النصوص، الفقرات، العناوين، واستبدال الصور فورياً باللغتين العربية والإنجليزية.</p>
                     </div>
 
                     <div class="stats-grid">
@@ -178,7 +200,14 @@
                             </div>
                         </div>
                         <div class="stat-box">
-                            <div class="stat-icon purple">⚡</div>
+                            <div class="stat-icon purple">🌐</div>
+                            <div class="stat-info">
+                                <h3 id="statLangSupport">AR + EN</h3>
+                                <p>دعم ثنائي اللغة كامل</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-icon yellow">⚡</div>
                             <div class="stat-info">
                                 <h3 id="statDbStatus">سحابي ومحلي</h3>
                                 <p>حفظ مزدوج وفوري</p>

@@ -90,12 +90,22 @@ document.addEventListener("DOMContentLoaded", () => {
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
         document.documentElement.lang = lang;
 
-        // Walk through all text nodes and replace exact string matches
+        // 1. First, apply CMS bilingual content for this language if engine exists
+        if (typeof applySiteContent === 'function') {
+            applySiteContent(null, lang);
+        }
+
+        // 2. Walk through all other text nodes and translate static UI strings
         const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, null, false);
         let node;
         while (node = walker.nextNode()) {
-            // Skip script and style tags
-            if (node.parentElement && (node.parentElement.tagName === 'SCRIPT' || node.parentElement.tagName === 'STYLE')) {
+            // Skip script, style tags and elements explicitly managed by CMS
+            if (node.parentElement && (
+                node.parentElement.tagName === 'SCRIPT' || 
+                node.parentElement.tagName === 'STYLE' ||
+                node.parentElement.closest('[data-cms]') ||
+                node.parentElement.closest('[data-cms-link]')
+            )) {
                 continue;
             }
 
@@ -124,10 +134,11 @@ document.addEventListener("DOMContentLoaded", () => {
         // Custom logic for placeholders, value inputs, etc.
         const inputs = document.querySelectorAll('input[placeholder], textarea[placeholder]');
         inputs.forEach(input => {
+            if (input.closest('[data-cms]')) return;
             if (input.originalPlaceholder === undefined) {
                 input.originalPlaceholder = input.getAttribute('placeholder');
             }
-            let text = input.originalPlaceholder.trim();
+            let text = (input.originalPlaceholder || '').trim();
             if (lang === 'en' && translations[text]) {
                 input.setAttribute('placeholder', translations[text]);
             } else {
@@ -139,6 +150,10 @@ document.addEventListener("DOMContentLoaded", () => {
         const dataAttrs = ['data-details', 'data-title', 'data-desc', 'data-i18n'];
         dataAttrs.forEach(attr => {
             document.querySelectorAll(`[${attr}]`).forEach(el => {
+                // Skip attributes managed by CMS
+                if (el.hasAttribute('data-cms-detail') || el.hasAttribute('data-cms-desc') || el.hasAttribute('data-cms-title')) {
+                    return;
+                }
                 const originalAttr = 'original' + attr;
                 if (el[originalAttr] === undefined) {
                     el[originalAttr] = el.getAttribute(attr);
