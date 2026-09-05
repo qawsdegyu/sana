@@ -9,9 +9,9 @@
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@400;500;700&family=Outfit:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <link rel="stylesheet" href="admin.css?v=2">
+    <link rel="stylesheet" href="admin.css?v=3">
     <!-- PDF.js for parsing PDF training documents client-side -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
     <script>
@@ -27,6 +27,18 @@
          ==================================================================== -->
     <div id="adminAuthWrapper" class="admin-auth-wrapper">
         <div class="auth-box">
+            <!-- Language switcher on login card -->
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 0.8rem;">
+                <div class="admin-lang-tabs" style="background: rgba(255,255,255,0.08);">
+                    <button type="button" class="btn-lang-tab active" id="btnLoginLangAr" onclick="switchAdminContentLang('ar')">
+                        <span class="flag">🇸🇦</span> <span>العربية</span>
+                    </button>
+                    <button type="button" class="btn-lang-tab" id="btnLoginLangEn" onclick="switchAdminContentLang('en')">
+                        <span class="flag">🇬🇧</span> <span>English</span>
+                    </button>
+                </div>
+            </div>
+
             <div class="auth-brand">
                 <div class="brand-icon">⚡</div>
                 <h1 class="auth-title">لوحة تحكم سَنَع</h1>
@@ -1262,6 +1274,7 @@ NOTIFY pgrst, 'reload schema';</pre>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase.js?v=2"></script>
     <script src="site-content.js?v=1"></script>
-    <script src="admin.js?v=1"></script>
+    <script src="admin-i18n.js?v=1"></script>
+    <script src="admin.js?v=2"></script>
 </body>
 </html>

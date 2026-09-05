@@ -15,6 +15,12 @@ let hasUnsavedChanges = false;
 // ==========================================================================
 
 async function checkAdminSession() {
+    // 1. Initialize admin UI language (restores previous choice or defaults to AR)
+    const savedLang = localStorage.getItem('sana_admin_lang') || 'ar';
+    if (typeof applyAdminLanguage === 'function') {
+        applyAdminLanguage(savedLang);
+    }
+
     if (typeof supabaseClient === 'undefined' || !supabaseClient) {
         showLoginOverlay();
         return;
@@ -119,8 +125,9 @@ async function initDashboard() {
     // 1. Fetch current content (local + remote)
     currentContent = getLocalSiteContent();
     
-    // 2. Setup language view (default to AR)
-    switchAdminContentLang('ar', false);
+    // 2. Setup language view (restore user's preferred admin language)
+    const savedLang = localStorage.getItem('sana_admin_lang') || 'ar';
+    switchAdminContentLang(savedLang, false);
 
     // 3. Setup navigation tabs
     setupTabNavigation();
@@ -148,48 +155,12 @@ function switchAdminContentLang(lang, shouldCollect = true) {
 
     currentAdminLang = lang;
 
-    // 1. Update buttons
-    const btnAr = document.getElementById('btnAdminLangAr');
-    const btnEn = document.getElementById('btnAdminLangEn');
-    if (btnAr) btnAr.classList.toggle('active', lang === 'ar');
-    if (btnEn) btnEn.classList.toggle('active', lang === 'en');
-
-    // 2. Update status bar and app direction
-    const appEl = document.getElementById('adminApp');
-    const barEl = document.getElementById('langStatusBar');
-    const badgeEl = document.getElementById('langBadge');
-    const subTextEl = document.getElementById('langSubText');
-    const autofillTextEl = document.getElementById('btnLangAutofillText');
-
-    if (lang === 'en') {
-        if (appEl) appEl.classList.add('lang-mode-en');
-        if (barEl) barEl.classList.add('en-mode');
-        if (badgeEl) {
-            badgeEl.className = 'indicator-badge en';
-            badgeEl.textContent = '🇬🇧 وضع التحرير: English (EN)';
-        }
-        if (subTextEl) {
-            subTextEl.textContent = 'يتم الآن تعديل وحفظ نصوص الموقع المعروضة للزوار باللغة الإنجليزية.';
-        }
-        if (autofillTextEl) {
-            autofillTextEl.textContent = 'استيراد النموذج الإنجليزي المعتمد (Auto-Fill)';
-        }
-    } else {
-        if (appEl) appEl.classList.remove('lang-mode-en');
-        if (barEl) barEl.classList.remove('en-mode');
-        if (badgeEl) {
-            badgeEl.className = 'indicator-badge ar';
-            badgeEl.textContent = '🇸🇦 وضع التحرير: اللغة العربية (AR)';
-        }
-        if (subTextEl) {
-            subTextEl.textContent = 'يتم الآن تعديل وحفظ نصوص الموقع المخصصة للنسخة العربية.';
-        }
-        if (autofillTextEl) {
-            autofillTextEl.textContent = 'استعادة النموذج العربي المعتمد';
-        }
+    // 1. Apply full UI translations, typography & layout direction (RTL / LTR)
+    if (typeof applyAdminLanguage === 'function') {
+        applyAdminLanguage(lang);
     }
 
-    // 3. Populate form fields with selected language content
+    // 2. Populate form fields with selected language content
     if (!currentContent[currentAdminLang]) {
         currentContent[currentAdminLang] = (lang === 'en') 
             ? JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT_EN))
@@ -380,7 +351,8 @@ function markUnsavedChanges() {
     badge.className = 'sync-badge';
     badge.style.borderColor = 'rgba(255, 165, 2, 0.4)';
     badge.style.color = '#ffa502';
-    document.getElementById('syncBadgeText').textContent = 'هناك تعديلات غير محفوظة';
+    const isEn = (currentAdminLang === 'en');
+    document.getElementById('syncBadgeText').textContent = isEn ? 'Unsaved changes exist' : 'هناك تعديلات غير محفوظة';
 }
 
 function markChangesSaved(remoteSuccess) {
@@ -389,7 +361,14 @@ function markChangesSaved(remoteSuccess) {
     badge.className = 'sync-badge synced';
     badge.style.borderColor = '';
     badge.style.color = '';
-    document.getElementById('syncBadgeText').textContent = remoteSuccess ? 'محفوظ محلياً وسحابياً' : 'محفوظ محلياً (جاهز لسوبابيز)';
+    const isEn = (currentAdminLang === 'en');
+    let text = '';
+    if (remoteSuccess) {
+        text = isEn ? 'Saved to Cloud & Local' : 'محفوظ محلياً وسحابياً';
+    } else {
+        text = isEn ? 'Saved locally (ready for Supabase)' : 'محفوظ محلياً (جاهز لسوبابيز)';
+    }
+    document.getElementById('syncBadgeText').textContent = text;
 }
 
 
@@ -403,7 +382,8 @@ function handleImageFileUpload(event, modelPath, previewImgId) {
 
     // Check size limit (10MB)
     if (file.size > 10 * 1024 * 1024) {
-        showToast("حجم الصورة كبير جداً (الحد الأقصى 10 ميغابايت)", "error");
+        const isEn = (currentAdminLang === 'en');
+        showToast(isEn ? "Image size too large (max 10MB)" : "حجم الصورة كبير جداً (الحد الأقصى 10 ميغابايت)", "error");
         return;
     }
 
@@ -420,7 +400,8 @@ function handleImageFileUpload(event, modelPath, previewImgId) {
         if (inputEl) inputEl.value = base64Data;
 
         markUnsavedChanges();
-        showToast("تم تحميل ومعاينة الصورة بنجاح! لا تنسَ حفظ التعديلات.", "success");
+        const isEn = (currentAdminLang === 'en');
+        showToast(isEn ? "Image uploaded and previewed! Don't forget to save changes." : "تم تحميل ومعاينة الصورة بنجاح! لا تنسَ حفظ التعديلات.", "success");
     };
     reader.readAsDataURL(file);
 }
@@ -439,9 +420,10 @@ function handleImageUrlInput(url, previewImgId) {
 // ==========================================================================
 
 async function handleSaveAll() {
+    const isEn = (currentAdminLang === 'en');
     const saveBtn = document.getElementById('btnSaveAll');
     saveBtn.classList.add('saving');
-    saveBtn.innerHTML = `<span>⏳</span> <span>جارٍ الحفظ والمزامنة...</span>`;
+    saveBtn.innerHTML = `<span>⏳</span> <span>${isEn ? 'Saving & Syncing...' : 'جارٍ الحفظ والمزامنة...'}</span>`;
 
     try {
         const updatedContent = collectFormData();
@@ -450,11 +432,11 @@ async function handleSaveAll() {
         currentContent = updatedContent;
         markChangesSaved(result.remote);
 
-        let msg = "تم حفظ كافة التعديلات بنجاح!";
+        let msg = isEn ? "All changes saved successfully!" : "تم حفظ كافة التعديلات بنجاح!";
         if (result.remote) {
-            msg += " ومزامنتها سحابياً مع Supabase 🚀";
+            msg += isEn ? " Synced to Supabase 🚀" : " ومزامنتها سحابياً مع Supabase 🚀";
         } else {
-            msg += " تم التخزين الفوري محلياً وسيتم المزامنة مع سوبابيز عند تشغيل الجدول.";
+            msg += isEn ? " Saved locally (ready for Supabase)." : " تم التخزين الفوري محلياً وسيتم المزامنة مع سوبابيز عند تشغيل الجدول.";
         }
 
         showToast(msg, "success");
@@ -471,10 +453,12 @@ async function handleSaveAll() {
 
     } catch (err) {
         console.error("Save error:", err);
-        showToast("حدث خطأ أثناء حفظ التعديلات: " + err.message, "error");
+        const isEn = (currentAdminLang === 'en');
+        showToast((isEn ? "Error saving changes: " : "حدث خطأ أثناء حفظ التعديلات: ") + err.message, "error");
     } finally {
         saveBtn.classList.remove('saving');
-        saveBtn.innerHTML = `<span>💾</span> <span>حفظ كافة التعديلات</span>`;
+        const isEn = (currentAdminLang === 'en');
+        saveBtn.innerHTML = `<span>💾</span> <span>${isEn ? 'Save All Changes' : 'حفظ كافة التعديلات'}</span>`;
     }
 }
 
