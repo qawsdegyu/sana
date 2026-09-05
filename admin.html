@@ -910,23 +910,34 @@
 
                             <div class="sql-box">
                                 <button type="button" class="btn-copy-sql" onclick="copySqlScript()">📋 نسخ كود الـ SQL</button>
-                                <pre class="sql-code" id="sqlCodeBlock">-- إنشاء جدول حفظ محتوى موقع سَنَع
+                                <pre class="sql-code" id="sqlCodeBlock">-- 1. إنشاء جدول حفظ محتوى موقع سَنَع
 CREATE TABLE IF NOT EXISTS public.site_content (
     id TEXT PRIMARY KEY,
     content JSONB NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- تفعيل سياسات الأمان RLS
+-- 2. تفعيل سياسات الأمان RLS
 ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
 
--- السماح للجميع بقراءة المحتوى (Public Read)
-CREATE POLICY "Allow public read-only access" 
-ON public.site_content FOR SELECT USING (true);
+-- 3. حذف السياسات السابقة لتفادي خطأ already exists
+DROP POLICY IF EXISTS "Allow public read-only access" ON public.site_content;
+DROP POLICY IF EXISTS "Allow update access" ON public.site_content;
+DROP POLICY IF EXISTS "Allow all for anon and auth" ON public.site_content;
 
--- السماح بتعديل المحتوى للمستخدمين المسجلين أو عبر anon
-CREATE POLICY "Allow update access" 
-ON public.site_content FOR ALL USING (true) WITH CHECK (true);</pre>
+-- 4. إنشاء سياسة شاملة تسمح بالقراءة والكتابة
+CREATE POLICY "Allow all for anon and auth" 
+ON public.site_content 
+FOR ALL 
+TO public 
+USING (true) 
+WITH CHECK (true);
+
+-- 5. إعطاء الصلاحيات للأدوار ليتعرف Supabase API على الجدول
+GRANT ALL ON TABLE public.site_content TO anon, authenticated, service_role;
+
+-- 6. تحديث كاش Supabase (PostgREST) فورياً
+NOTIFY pgrst, 'reload schema';</pre>
                             </div>
 
                             <div style="margin-top: 1.5rem; display: flex; gap: 12px; flex-wrap: wrap;">
