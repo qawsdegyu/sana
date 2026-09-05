@@ -70,7 +70,7 @@ async function handleAdminLogin(e) {
         if (error) {
             const msg = (error.message || "").toLowerCase();
             if (msg.includes("email not confirmed")) {
-                throw new Error("الحساب بانتظار التأكيد: اذهب إلى Supabase > Authentication > Users واضغط (...) بجانب admin@sana.com ثم Confirm email.");
+                throw new Error("الحساب بانتظار التأكيد: اذهب إلى Supabase > Authentication > Users واضغط (...) بجانب حسابك ثم Confirm email.");
             }
             if (msg.includes("invalid login credentials")) {
                 throw new Error("بيانات الدخول غير صحيحة، أو أن الحساب بحاجة لتأكيد في سوبابيز.");
