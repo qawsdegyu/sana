@@ -125,11 +125,14 @@ async function initDashboard() {
     // 3. Setup navigation tabs
     setupTabNavigation();
 
-    // 4. Setup Supabase config form & test connection
+    // 4. Setup Knowledge Base Drop Zone
+    setupKnowledgeDropZone();
+
+    // 5. Setup Supabase config form & test connection
     initSupabaseCredentialsForm();
     testSupabaseConnection();
 
-    // 5. Remote content fetch in background
+    // 6. Remote content fetch in background
     fetchRemoteSiteContent().then(remoteContent => {
         if (remoteContent) {
             currentContent = remoteContent;
@@ -319,6 +322,14 @@ function populateForms(content) {
         const sbPrev = document.getElementById('preview_sandbox_image');
         if (sbPrev) sbPrev.src = sbImg;
     }
+
+    // Update Chatbot Knowledge Base Textarea and Files
+    const kbTextArea = document.getElementById('chatbotKnowledgeCustomText');
+    if (kbTextArea) {
+        kbTextArea.value = (currentContent.chatbot_knowledge && currentContent.chatbot_knowledge.customText) || '';
+        updateKbTextCounter();
+    }
+    renderKnowledgeFilesList();
 }
 
 function collectCurrentLangFormData() {
@@ -346,6 +357,15 @@ function collectCurrentLangFormData() {
         if (!currentContent.en.sandbox) currentContent.en.sandbox = {};
         currentContent.ar.sandbox.image = sbImgInput.value;
         currentContent.en.sandbox.image = sbImgInput.value;
+    }
+
+    // Collect Chatbot Knowledge Base Text
+    if (!currentContent.chatbot_knowledge) {
+        currentContent.chatbot_knowledge = { customText: "", files: [] };
+    }
+    const kbTextArea = document.getElementById('chatbotKnowledgeCustomText');
+    if (kbTextArea) {
+        currentContent.chatbot_knowledge.customText = kbTextArea.value;
     }
 }
 
@@ -495,7 +515,400 @@ function setPreviewDevice(width, btn) {
 
 
 // ==========================================================================
-// 7. SUPABASE INTEGRATION & DATABASE UTILS
+// 7. CHATBOT KNOWLEDGE BASE & AI TRAINING CONTROLLER
+// ==========================================================================
+
+function updateKbTextCounter() {
+    const el = document.getElementById('chatbotKnowledgeCustomText');
+    const counter = document.getElementById('kbTextCounter');
+    if (!el || !counter) return;
+    const text = el.value || '';
+    const chars = text.length;
+    const words = text.trim() ? text.trim().split(/\s+/).length : 0;
+    counter.textContent = `${chars.toLocaleString('ar-EG')} حرف | ${words.toLocaleString('ar-EG')} كلمة`;
+}
+
+function handleKbTextInput() {
+    updateKbTextCounter();
+    if (!currentContent.chatbot_knowledge) {
+        currentContent.chatbot_knowledge = { customText: "", files: [] };
+    }
+    const el = document.getElementById('chatbotKnowledgeCustomText');
+    if (el) {
+        currentContent.chatbot_knowledge.customText = el.value;
+    }
+    markUnsavedChanges();
+}
+
+function clearKnowledgeText() {
+    const el = document.getElementById('chatbotKnowledgeCustomText');
+    if (el) {
+        el.value = '';
+        handleKbTextInput();
+        showToast("تم مسح نص قاعدة المعرفة المباشرة", "info");
+    }
+}
+
+function setupKnowledgeDropZone() {
+    const zone = document.getElementById('kbDropZone');
+    if (!zone || zone.hasAttribute('data-initialized')) return;
+    zone.setAttribute('data-initialized', 'true');
+
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        zone.addEventListener(eventName, (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        }, false);
+    });
+
+    ['dragenter', 'dragover'].forEach(eventName => {
+        zone.addEventListener(eventName, () => zone.classList.add('dragover'), false);
+    });
+
+    ['dragleave', 'drop'].forEach(eventName => {
+        zone.addEventListener(eventName, () => zone.classList.remove('dragover'), false);
+    });
+
+    zone.addEventListener('drop', (e) => {
+        const dt = e.dataTransfer;
+        const files = dt.files;
+        if (files && files.length > 0) {
+            processKnowledgeFiles(files);
+        }
+    }, false);
+}
+
+function handleKnowledgeFilesSelect(event) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+        processKnowledgeFiles(files);
+    }
+    event.target.value = '';
+}
+
+async function processKnowledgeFiles(fileList) {
+    const files = Array.from(fileList);
+    if (!files.length) return;
+
+    const progressEl = document.getElementById('kbUploadProgress');
+    if (progressEl) progressEl.style.display = 'block';
+
+    if (!currentContent.chatbot_knowledge) {
+        currentContent.chatbot_knowledge = { customText: "", files: [] };
+    }
+    if (!Array.isArray(currentContent.chatbot_knowledge.files)) {
+        currentContent.chatbot_knowledge.files = [];
+    }
+
+    let successCount = 0;
+    let failedFiles = [];
+
+    for (const file of files) {
+        try {
+            const ext = (file.name.split('.').pop() || '').toLowerCase();
+            let extractedText = "";
+
+            if (ext === 'pdf') {
+                extractedText = await parsePdfFile(file);
+            } else if (['txt', 'md', 'json', 'csv', 'html', 'js'].includes(ext)) {
+                extractedText = await parseTextFile(file);
+            } else {
+                throw new Error(`نوع الملف (${ext}) غير مدعوم حالياً`);
+            }
+
+            if (!extractedText || !extractedText.trim()) {
+                throw new Error("لم يتم العثور على نصوص قابلة للاستخراج في الملف");
+            }
+
+            const fileRecord = {
+                id: 'kb_' + Date.now() + '_' + Math.random().toString(36).substr(2, 6),
+                name: file.name,
+                type: ext.toUpperCase(),
+                size: formatFileSize(file.size),
+                charsCount: extractedText.length,
+                text: extractedText.trim(),
+                uploadedAt: new Date().toLocaleDateString('ar-EG', { month: 'short', day: 'numeric', year: 'numeric' })
+            };
+
+            currentContent.chatbot_knowledge.files.push(fileRecord);
+            successCount++;
+        } catch (err) {
+            console.error(`Error processing file ${file.name}:`, err);
+            failedFiles.push(`${file.name} (${err.message})`);
+        }
+    }
+
+    if (progressEl) progressEl.style.display = 'none';
+
+    renderKnowledgeFilesList();
+    markUnsavedChanges();
+
+    if (successCount > 0) {
+        showToast(`تم استخراج نصوص ${successCount} ملف وإضافتها لذاكرة المساعد بنجاح! لا تنسَ الضغط على 'حفظ كافة التعديلات'`, "success");
+    }
+    if (failedFiles.length > 0) {
+        showToast(`تعذر قراءة بعض الملفات: ${failedFiles.join(', ')}`, "error");
+    }
+}
+
+async function parsePdfFile(file) {
+    if (typeof pdfjsLib === 'undefined') {
+        throw new Error("مكتبة PDF.js غير متوفرة في الصفحة");
+    }
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    let fullText = "";
+
+    for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+        const page = await pdf.getPage(pageNum);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map(item => item.str).join(" ");
+        if (pageText && pageText.trim()) {
+            fullText += `[صفحة ${pageNum}]:\n${pageText}\n\n`;
+        }
+    }
+    return fullText;
+}
+
+function parseTextFile(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = (e) => resolve(e.target.result);
+        reader.onerror = () => reject(new Error("تعذر قراءة محتوى الملف النصي"));
+        reader.readAsText(file);
+    });
+}
+
+function formatFileSize(bytes) {
+    if (!bytes || bytes === 0) return '0 B';
+    const k = 1024;
+    const sizes = ['B', 'KB', 'MB', 'GB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+}
+
+function renderKnowledgeFilesList() {
+    const container = document.getElementById('kbFilesContainer');
+    const countEl = document.getElementById('kbFilesCount');
+    const totalCharsEl = document.getElementById('kbTotalChars');
+    if (!container) return;
+
+    const files = (currentContent.chatbot_knowledge && currentContent.chatbot_knowledge.files) || [];
+    
+    if (countEl) countEl.textContent = files.length;
+    
+    const totalChars = files.reduce((sum, f) => sum + (f.charsCount || (f.text ? f.text.length : 0)), 0);
+    if (totalCharsEl) {
+        totalCharsEl.textContent = `إجمالي الحروف المستخرجة: ${totalChars.toLocaleString('ar-EG')}`;
+    }
+
+    if (files.length === 0) {
+        container.innerHTML = `
+            <div class="kb-empty-files">
+                <div style="font-size: 2.2rem; margin-bottom: 6px;">📂</div>
+                <div style="font-weight: 600; color: #fff; margin-bottom: 4px;">لا توجد ملفات مرفوعة حالياً</div>
+                <small style="color: var(--text-muted);">اسحب أي ملف PDF أو مستند نصي وأفلته هنا لتدريب البوت عليه فوراً.</small>
+            </div>
+        `;
+        return;
+    }
+
+    container.innerHTML = files.map(f => {
+        const ext = (f.name.split('.').pop() || '').toLowerCase();
+        let icon = '📄';
+        if (ext === 'pdf') icon = '📕';
+        else if (['json', 'csv'].includes(ext)) icon = '📊';
+        else if (['md', 'txt'].includes(ext)) icon = '📝';
+
+        const chars = f.charsCount || (f.text ? f.text.length : 0);
+
+        return `
+            <div class="kb-file-card" id="card_${f.id}">
+                <div class="kb-file-header">
+                    <span class="kb-file-icon">${icon}</span>
+                    <div class="kb-file-meta">
+                        <div class="kb-file-name" title="${escapeHtml(f.name)}">${escapeHtml(f.name)}</div>
+                        <div class="kb-file-details">
+                            <span>📦 ${f.size || 'N/A'}</span>
+                            <span>🔤 ${chars.toLocaleString('ar-EG')} حرف</span>
+                            <span>📅 ${f.uploadedAt || ''}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="kb-file-actions">
+                    <button type="button" class="btn-file-action preview" onclick="previewKnowledgeFile('${f.id}')">
+                        <span>👁️</span> <span>معاينة المستخرج</span>
+                    </button>
+                    <button type="button" class="btn-file-action delete" onclick="removeKnowledgeFile('${f.id}')">
+                        <span>🗑️</span> <span>حذف</span>
+                    </button>
+                </div>
+            </div>
+        `;
+    }).join('');
+}
+
+function previewKnowledgeFile(fileId) {
+    const files = (currentContent.chatbot_knowledge && currentContent.chatbot_knowledge.files) || [];
+    const file = files.find(f => f.id === fileId);
+    if (!file) {
+        showToast("الملف غير موجود", "error");
+        return;
+    }
+
+    const titleEl = document.getElementById('kbModalFileName');
+    const textEl = document.getElementById('kbModalFileText');
+    const modal = document.getElementById('kbFileModal');
+
+    if (titleEl) titleEl.innerHTML = `<span>📄</span> <span>معاينة: ${escapeHtml(file.name)} (${file.size})</span>`;
+    if (textEl) textEl.textContent = file.text || "(الملف لا يحتوي على نص)";
+    if (modal) modal.classList.add('show');
+}
+
+function closeKbFileModal() {
+    const modal = document.getElementById('kbFileModal');
+    if (modal) modal.classList.remove('show');
+}
+
+function removeKnowledgeFile(fileId) {
+    const files = (currentContent.chatbot_knowledge && currentContent.chatbot_knowledge.files) || [];
+    const file = files.find(f => f.id === fileId);
+    const fileName = file ? file.name : "هذا الملف";
+
+    if (confirm(`هل أنت متأكد من رغبتك في حذف ${fileName} من ذاكرة وتدريب المساعد؟`)) {
+        currentContent.chatbot_knowledge.files = files.filter(f => f.id !== fileId);
+        renderKnowledgeFilesList();
+        markUnsavedChanges();
+        showToast("تم حذف الملف بنجاح من قاعدة المعرفة", "info");
+    }
+}
+
+async function sendAdminTestChat() {
+    const input = document.getElementById('adminTestChatInput');
+    const sendBtn = document.getElementById('btnAdminTestSend');
+    const messagesContainer = document.getElementById('adminTestChatMessages');
+    if (!input || !messagesContainer) return;
+
+    const userText = input.value.trim();
+    if (!userText) return;
+
+    // 1. Append User Message
+    const userMsgDiv = document.createElement('div');
+    userMsgDiv.className = 'test-msg user';
+    userMsgDiv.innerHTML = `
+        <div class="msg-sender">👤 المشرف (أنت):</div>
+        <div class="msg-body">${escapeHtml(userText)}</div>
+    `;
+    messagesContainer.appendChild(userMsgDiv);
+    input.value = '';
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    // 2. Append Temporary Bot Indicator
+    const typingId = 'typing_' + Date.now();
+    const botMsgDiv = document.createElement('div');
+    botMsgDiv.className = 'test-msg bot';
+    botMsgDiv.id = typingId;
+    botMsgDiv.innerHTML = `
+        <div class="msg-sender">🤖 المبتكر الذكي:</div>
+        <div class="msg-body">⏳ جارٍ استرجاع المعلومات من قاعدة المعرفة وتوليد الرد...</div>
+    `;
+    messagesContainer.appendChild(botMsgDiv);
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+    if (sendBtn) sendBtn.disabled = true;
+
+    try {
+        // Collect current chatbot settings from form
+        const model = document.querySelector('[data-model="chatbot.model"]')?.value || 'openai/gpt-4o-mini';
+        const customApiKey = document.querySelector('[data-model="chatbot.customApiKey"]')?.value || '';
+        const systemPrompt = document.querySelector('[data-model="chatbot.systemPrompt"]')?.value || 'أنت المساعد الذكي لمشروع سَنَع.';
+        const customKnowledgeText = document.getElementById('chatbotKnowledgeCustomText')?.value || '';
+        const files = (currentContent.chatbot_knowledge && currentContent.chatbot_knowledge.files) || [];
+
+        // Construct combined system prompt
+        let fullSystemPrompt = systemPrompt + "\n\n=== قاعدة المعرفة والبيانات المدربة (Knowledge Base) ===";
+        if (customKnowledgeText.trim()) {
+            fullSystemPrompt += "\n\n[نصوص ومعلومات المشروع الخاصة]:\n" + customKnowledgeText.trim();
+        }
+        if (files.length > 0) {
+            fullSystemPrompt += "\n\n[الملفات والمستندات المرفوعة]:\n";
+            files.forEach((f, idx) => {
+                fullSystemPrompt += `--- مستند ${idx + 1}: ${f.name} ---\n${f.text}\n\n`;
+            });
+        }
+
+        const payload = {
+            model: model,
+            messages: [
+                { role: 'system', content: fullSystemPrompt },
+                { role: 'user', content: userText }
+            ]
+        };
+        if (customApiKey) payload.apiKey = customApiKey;
+
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            let errorMsg = "حدث خطأ في الاتصال بالسيرفر.";
+            try {
+                const errData = await response.json();
+                errorMsg = errData.detailed_error || errData.error?.message || errData.error || errorMsg;
+            } catch (e) {}
+            throw new Error(errorMsg);
+        }
+
+        const resData = await response.json();
+        const contentStr = resData.choices[0].message.content;
+
+        let displayBody = contentStr;
+        // If the model responded in JSON with { response: "..." }
+        try {
+            const parsed = JSON.parse(contentStr);
+            if (parsed.response) {
+                displayBody = parsed.response;
+            }
+        } catch (e) {}
+
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) {
+            typingEl.querySelector('.msg-body').textContent = displayBody;
+        }
+
+    } catch (err) {
+        console.error("Test chat error:", err);
+        const typingEl = document.getElementById(typingId);
+        if (typingEl) {
+            typingEl.querySelector('.msg-body').innerHTML = `
+                <span style="color: var(--danger);">⚠️ خطأ: ${escapeHtml(err.message)}</span>
+                <br><small style="color: var(--text-muted);">تأكد من إدخال مفتاح API في الإعدادات أو تشغيل السيرفر المحلي.</small>
+            `;
+        }
+        showToast("خطأ في محادثة الاختبار: " + err.message, "error");
+    } finally {
+        if (sendBtn) sendBtn.disabled = false;
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
+}
+
+function escapeHtml(text) {
+    if (!text) return '';
+    return String(text)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
+
+
+// ==========================================================================
+// 8. SUPABASE INTEGRATION & DATABASE UTILS
 // ==========================================================================
 
 async function testSupabaseConnection() {

@@ -146,6 +146,36 @@ const DEFAULT_SITE_CONTENT_AR = {
         poweredByText: "بدعم من",
         poweredByName: "Operix",
         poweredByLink: "https://www.instagram.com/operixsys/"
+    },
+    chatbot: {
+        botName: "المبتكر الذكي",
+        welcomeTitle: "كيف يمكنني مساعدتك اليوم؟",
+        welcomeSub: "أنا المبتكر الذكي، يمكنني اختراع أنظمة وعوالم جديدة كلياً، ومناقشتها معك، وتصميم امتحانات لتقييم فهمك.",
+        btnQuiz: "📝 اختبرني (امتحان ضع دائرة)",
+        btnImage: "🖼️ توليد صورة أخرى للنظام",
+        btnExplain: "🤔 اشرح لي المزيد بتفصيل أبسط",
+        quizPrompt: "اختبرني (امتحان ضع دائرة) في النظام الذي ابتكرته للتو.",
+        imagePrompt: "هل يمكنك إنشاء صورة توضيحية أخرى لهذا النظام تظهر زاوية مختلفة أو استخداماً آخر؟",
+        explainPrompt: "أشعر أن الموضوع معقد قليلاً، هل يمكنك شرحه لي بطريقة أبسط مع أمثلة من حياتي اليومية؟",
+        model: "openai/gpt-4o-mini",
+        customApiKey: "",
+        systemPrompt: `أنت المبتكر الذكي، ذكاء اصطناعي عبقري ومبدع جداً هدفه اختراع أنظمة وأشياء جديدة كلياً وغير موجودة في عالمنا الحالي.
+القواعد:
+1. يجب أن ترد دائماً بصيغة JSON حصرية، وباللغة العربية.
+2. الهيكل المطلوب:
+{
+  "is_quiz": boolean,
+  "response": "نص الرد بتنسيق Markdown إذا كان is_quiz = false",
+  "image_prompt": "وصف بالانجليزية لتوليد صورة (أو null)",
+  "questions": [
+     {
+       "questionText": "السؤال",
+       "options": ["خيار 1", "خيار 2", "خيار 3", "خيار 4"],
+       "correctIndex": 0,
+       "explanation": "سبب الإجابة الصحيحة"
+     }
+  ]
+}`
     }
 };
 
@@ -290,12 +320,46 @@ const DEFAULT_SITE_CONTENT_EN = {
         poweredByText: "Powered by",
         poweredByName: "Operix",
         poweredByLink: "https://www.instagram.com/operixsys/"
+    },
+    chatbot: {
+        botName: "Smart Creator AI",
+        welcomeTitle: "How can I help you today?",
+        welcomeSub: "I am the Smart Creator. I can invent entirely new systems and worlds, discuss them with you, and design quizzes to test your understanding.",
+        btnQuiz: "📝 Test me (Multiple Choice)",
+        btnImage: "🖼️ Generate another image",
+        btnExplain: "🤔 Explain simpler",
+        quizPrompt: "Test me (multiple choice quiz) on the system you just invented.",
+        imagePrompt: "Can you generate another illustration for this system showing a different angle or use case?",
+        explainPrompt: "I feel this is a bit complex, can you explain it simpler with everyday examples?",
+        model: "openai/gpt-4o-mini",
+        customApiKey: "",
+        systemPrompt: `You are the Smart Creator, a genius AI whose goal is to invent entirely new systems and things that don't exist in our current world.
+Rules:
+1. You MUST always respond exclusively in JSON format, and in English.
+2. Required structure:
+{
+  "is_quiz": boolean,
+  "response": "Markdown formatted response if is_quiz = false",
+  "image_prompt": "English description to generate an image (or null)",
+  "questions": [
+     {
+       "questionText": "Question",
+       "options": ["Option 1", "Option 2", "Option 3", "Option 4"],
+       "correctIndex": 0,
+       "explanation": "Reason for correct answer"
+     }
+  ]
+}`
     }
 };
 
 const DEFAULT_SITE_CONTENT = {
     ar: DEFAULT_SITE_CONTENT_AR,
-    en: DEFAULT_SITE_CONTENT_EN
+    en: DEFAULT_SITE_CONTENT_EN,
+    chatbot_knowledge: {
+        customText: "",
+        files: []
+    }
 };
 
 const STORAGE_KEY = 'sana_site_content_v2';
@@ -347,24 +411,34 @@ function setByPath(obj, path, value) {
 }
 
 /**
- * Normalize loaded data to always contain { ar: {...}, en: {...} }
+ * Normalize loaded data to always contain { ar: {...}, en: {...}, chatbot_knowledge: {...} }
  */
 function normalizeContentObject(raw) {
     if (!raw || typeof raw !== 'object') {
         return JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT));
     }
+
+    const kb = (raw.chatbot_knowledge && typeof raw.chatbot_knowledge === 'object')
+        ? {
+            customText: raw.chatbot_knowledge.customText || "",
+            files: Array.isArray(raw.chatbot_knowledge.files) ? raw.chatbot_knowledge.files : []
+        }
+        : { customText: "", files: [] };
+
     // Check if it already has ar and en
     if (raw.ar && typeof raw.ar === 'object') {
         return {
             ar: deepMerge(DEFAULT_SITE_CONTENT_AR, raw.ar),
-            en: deepMerge(DEFAULT_SITE_CONTENT_EN, raw.en || {})
+            en: deepMerge(DEFAULT_SITE_CONTENT_EN, raw.en || {}),
+            chatbot_knowledge: kb
         };
     }
     // Older schema where raw had hero, vision, etc. directly
     if (raw.hero || raw.brand || raw.vision) {
         return {
             ar: deepMerge(DEFAULT_SITE_CONTENT_AR, raw),
-            en: JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT_EN))
+            en: JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT_EN)),
+            chatbot_knowledge: kb
         };
     }
     return JSON.parse(JSON.stringify(DEFAULT_SITE_CONTENT));
@@ -582,4 +656,21 @@ if (typeof window !== 'undefined') {
     window.applySiteContent = applySiteContent;
     window.getByPath = getByPath;
     window.setByPath = setByPath;
+    window.normalizeContentObject = normalizeContentObject;
+}
+
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = {
+        DEFAULT_SITE_CONTENT,
+        DEFAULT_SITE_CONTENT_AR,
+        DEFAULT_SITE_CONTENT_EN,
+        getLocalSiteContent,
+        fetchRemoteSiteContent,
+        saveSiteContent,
+        resetSiteContent,
+        applySiteContent,
+        getByPath,
+        setByPath,
+        normalizeContentObject
+    };
 }

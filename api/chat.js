@@ -18,13 +18,13 @@ module.exports = async function handler(req, res) {
   }
 
   try {
-    const { messages, model, response_format } = req.body;
+    const { messages, model, response_format, apiKey: customApiKey } = req.body;
 
-    // Use the secure API key from Vercel Environment Variables
-    const apiKey = process.env.OPENROUTER_API_KEY;
+    // Use custom API key if provided by admin, or the secure key from Vercel Environment Variables
+    const apiKey = customApiKey || process.env.OPENROUTER_API_KEY;
 
     if (!apiKey) {
-      return res.status(500).json({ detailed_error: 'API key is missing in server environment variables. Please add OPENROUTER_API_KEY in Vercel.' });
+      return res.status(500).json({ detailed_error: 'API key is missing. Please enter your OpenRouter API key in the Admin Panel Chatbot settings or set OPENROUTER_API_KEY in Vercel.' });
     }
 
     const response = await fetch("https://openrouter.ai/api/v1/chat/completions", {

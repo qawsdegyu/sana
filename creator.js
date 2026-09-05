@@ -89,23 +89,89 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     };
     
+    // Dynamic Site Content Integration (Local + Remote)
+    let currentSiteContent = (typeof getLocalSiteContent === 'function') ? getLocalSiteContent() : null;
+
+    if (typeof fetchRemoteSiteContent === 'function') {
+        fetchRemoteSiteContent().then(remote => {
+            if (remote) {
+                currentSiteContent = remote;
+                updateLanguage();
+            }
+        });
+    }
+
+    function getActiveBotConfig(lang) {
+        const fallback = uiStrings[lang] || uiStrings.ar;
+        if (!currentSiteContent) return fallback;
+
+        const langData = currentSiteContent[lang] || currentSiteContent.ar || {};
+        const bot = langData.chatbot || {};
+
+        return {
+            placeholder: fallback.placeholder,
+            quizText: bot.quizPrompt || fallback.quizText,
+            imageText: bot.imagePrompt || fallback.imageText,
+            explainText: bot.explainPrompt || fallback.explainText,
+            welcomeTitle: bot.welcomeTitle || fallback.welcomeTitle,
+            welcomeSub: bot.welcomeSub || fallback.welcomeSub,
+            btnQuiz: bot.btnQuiz || fallback.btnQuiz,
+            btnImage: bot.btnImage || fallback.btnImage,
+            btnExplain: bot.btnExplain || fallback.btnExplain,
+            systemPrompt: bot.systemPrompt || fallback.systemPrompt,
+            model: bot.model || "openai/gpt-4o-mini",
+            customApiKey: bot.customApiKey || ""
+        };
+    }
+
+    function buildDynamicSystemPrompt(lang) {
+        const config = getActiveBotConfig(lang);
+        let prompt = config.systemPrompt;
+
+        // Append Knowledge Base if exists
+        const kb = (currentSiteContent && currentSiteContent.chatbot_knowledge) || null;
+        if (kb) {
+            let kbAdditions = "";
+            if (kb.customText && kb.customText.trim()) {
+                kbAdditions += "\n\n=== قاعدة المعرفة ومعلومات المشروع المعتمدة (Project Knowledge Base) ===\n" + kb.customText.trim();
+            }
+            if (Array.isArray(kb.files) && kb.files.length > 0) {
+                kbAdditions += "\n\n=== المستندات والملفات المرجعية المرفوعة (Uploaded Knowledge Files) ===\n";
+                kb.files.forEach((f, idx) => {
+                    kbAdditions += `--- [ملف ${idx + 1}: ${f.name}] ---\n${f.text}\n\n`;
+                });
+            }
+            if (kbAdditions) {
+                prompt += kbAdditions + "\n\n(ملاحظة مهمة: استخدم المعلومات والمستندات السابقة أعلاه كمرجع موثوق وأساسي لإجابة المستخدم، مع الالتزام التام بصيغة الـ JSON المحددة في القواعد).";
+            }
+        }
+
+        return prompt;
+    }
+
     function updateLanguage() {
-        const str = uiStrings[currentLang];
-        // Only update if elements exist and weren't overwritten by chat
-        if(document.querySelector('#welcomeScreen h1')) {
-            document.querySelector('#welcomeScreen h1').textContent = str.welcomeTitle;
-            document.querySelector('#welcomeScreen p').textContent = str.welcomeSub;
+        const config = getActiveBotConfig(currentLang);
+        
+        // Update welcome screen if visible
+        if (document.querySelector('#welcomeScreen h1')) {
+            document.querySelector('#welcomeScreen h1').textContent = config.welcomeTitle;
+            document.querySelector('#welcomeScreen p').textContent = config.welcomeSub;
+        }
+
+        if (chatInput) {
+            chatInput.placeholder = config.placeholder;
         }
         
         const qBtns = document.querySelectorAll('.btn-quick');
-        if(qBtns.length >= 3) {
-            qBtns[0].textContent = str.btnQuiz;
-            qBtns[1].textContent = str.btnImage;
-            qBtns[2].textContent = str.btnExplain;
+        if (qBtns.length >= 3) {
+            qBtns[0].textContent = config.btnQuiz;
+            qBtns[1].textContent = config.btnImage;
+            qBtns[2].textContent = config.btnExplain;
         }
         
+        const dynPrompt = buildDynamicSystemPrompt(currentLang);
         if (chatHistory.length > 0) {
-            chatHistory[0] = { role: 'system', content: str.systemPrompt };
+            chatHistory[0] = { role: 'system', content: dynPrompt };
         }
     }
     
@@ -113,9 +179,23 @@ document.addEventListener('DOMContentLoaded', () => {
         currentLang = e.detail.lang;
         updateLanguage();
     });
+
+    window.addEventListener('siteContentUpdated', (e) => {
+        if (e.detail && e.detail.content) {
+            currentSiteContent = e.detail.content;
+            updateLanguage();
+        }
+    });
+
+    window.addEventListener('storage', (e) => {
+        if (e.key === 'sana_site_content' && typeof getLocalSiteContent === 'function') {
+            currentSiteContent = getLocalSiteContent();
+            updateLanguage();
+        }
+    });
     
-    // Initialize system prompt
-    chatHistory.push({ role: 'system', content: uiStrings[currentLang].systemPrompt });
+    // Initialize system prompt with knowledge base
+    chatHistory.push({ role: 'system', content: buildDynamicSystemPrompt(currentLang) });
     
     // Auto-resize textarea
     chatInput.addEventListener('input', function() {
@@ -153,25 +233,31 @@ document.addEventListener('DOMContentLoaded', () => {
     // Quick Actions
     document.querySelectorAll('.btn-quick').forEach((btn, index) => {
         btn.addEventListener('click', () => {
-            const str = uiStrings[currentLang];
-            if (index === 0) sendMessage(str.quizText);
-            if (index === 1) sendMessage(str.imageText);
-            if (index === 2) sendMessage(str.explainText);
+            const config = getActiveBotConfig(currentLang);
+            if (index === 0) sendMessage(config.quizText);
+            if (index === 1) sendMessage(config.imageText);
+            if (index === 2) sendMessage(config.explainText);
         });
     });
     
     async function callOpenRouterAPI(messages) {
+        const config = getActiveBotConfig(currentLang);
+        const payload = {
+            model: config.model || 'openai/gpt-4o-mini',
+            response_format: { type: "json_object" },
+            messages: messages
+        };
+        if (config.customApiKey) {
+            payload.apiKey = config.customApiKey;
+        }
+
         // Fetch from our secure Vercel Serverless Function
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify({
-                model: 'openai/gpt-4o-mini',
-                response_format: { type: "json_object" },
-                messages: messages
-            })
+            body: JSON.stringify(payload)
         });
         
         if (!response.ok) {

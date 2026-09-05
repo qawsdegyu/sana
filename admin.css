@@ -988,6 +988,277 @@ textarea.form-control {
 }
 
 /* ==========================================================================
+   CHATBOT & KNOWLEDGE BASE TRAINING STYLES
+   ========================================================================== */
+.kb-dropzone {
+    border: 2px dashed rgba(0, 242, 254, 0.35);
+    background: rgba(0, 242, 254, 0.02);
+    border-radius: 16px;
+    padding: 2.2rem 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: var(--transition-smooth);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+}
+
+.kb-dropzone:hover,
+.kb-dropzone.dragover {
+    border-color: var(--primary);
+    background: rgba(0, 242, 254, 0.08);
+    box-shadow: 0 0 30px rgba(0, 242, 254, 0.2);
+    transform: translateY(-2px);
+}
+
+.dropzone-icon {
+    font-size: 2.8rem;
+    filter: drop-shadow(0 0 12px rgba(0, 242, 254, 0.4));
+    line-height: 1;
+}
+
+.dropzone-text strong {
+    display: block;
+    font-size: 1.05rem;
+    color: #fff;
+    margin-bottom: 5px;
+}
+
+.dropzone-text span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+}
+
+.dropzone-btn {
+    background: rgba(0, 242, 254, 0.15);
+    border: 1px solid var(--primary);
+    color: #fff;
+    padding: 0.5rem 1.4rem;
+    border-radius: 999px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: var(--transition-smooth);
+    margin-top: 4px;
+}
+
+.kb-dropzone:hover .dropzone-btn {
+    background: var(--primary);
+    color: #060913;
+    box-shadow: 0 0 15px rgba(0, 242, 254, 0.5);
+}
+
+.kb-files-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 1rem;
+    min-height: 60px;
+}
+
+.kb-empty-files {
+    text-align: center;
+    padding: 2rem;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    grid-column: 1 / -1;
+    border: 1px dashed rgba(255, 255, 255, 0.08);
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.01);
+}
+
+.kb-file-card {
+    background: rgba(13, 21, 40, 0.9);
+    border: 1px solid var(--border-subtle);
+    border-radius: 14px;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    transition: var(--transition-smooth);
+    position: relative;
+    backdrop-filter: blur(10px);
+}
+
+.kb-file-card:hover {
+    border-color: rgba(0, 242, 254, 0.4);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.kb-file-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.kb-file-icon {
+    font-size: 1.8rem;
+    line-height: 1;
+    flex-shrink: 0;
+}
+
+.kb-file-meta {
+    flex: 1;
+    min-width: 0;
+}
+
+.kb-file-name {
+    font-weight: 600;
+    font-size: 0.9rem;
+    color: #fff;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.kb-file-details {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 3px;
+}
+
+.kb-file-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+    border-top: 1px solid rgba(255, 255, 255, 0.06);
+    padding-top: 8px;
+    margin-top: 4px;
+}
+
+.btn-file-action {
+    padding: 0.35rem 0.75rem;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    cursor: pointer;
+    border: 1px solid transparent;
+    font-family: inherit;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    transition: var(--transition-smooth);
+}
+
+.btn-file-action.preview {
+    background: rgba(0, 242, 254, 0.1);
+    color: var(--primary-light);
+    border-color: rgba(0, 242, 254, 0.25);
+}
+
+.btn-file-action.preview:hover {
+    background: rgba(0, 242, 254, 0.25);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
+}
+
+.btn-file-action.delete {
+    background: rgba(255, 71, 87, 0.1);
+    color: #ff6b81;
+    border-color: rgba(255, 71, 87, 0.25);
+}
+
+.btn-file-action.delete:hover {
+    background: rgba(255, 71, 87, 0.25);
+    color: #fff;
+    box-shadow: 0 0 10px rgba(255, 71, 87, 0.3);
+}
+
+/* Live AI Test Sandbox */
+.admin-test-chatbox {
+    background: rgba(7, 12, 24, 0.95);
+    border: 1px solid rgba(0, 242, 254, 0.2);
+    border-radius: 16px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.test-chat-messages {
+    padding: 1.2rem;
+    max-height: 380px;
+    min-height: 220px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 242, 254, 0.3) transparent;
+}
+
+.test-msg {
+    max-width: 85%;
+    padding: 0.85rem 1.1rem;
+    border-radius: 14px;
+    font-size: 0.9rem;
+    line-height: 1.6;
+    animation: testMsgFadeIn 0.25s ease-out;
+}
+
+@keyframes testMsgFadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.test-msg.bot {
+    align-self: flex-start;
+    background: rgba(16, 26, 54, 0.9);
+    border: 1px solid rgba(0, 242, 254, 0.25);
+    color: #e2e8f0;
+    border-bottom-right-radius: 4px;
+}
+
+.test-msg.user {
+    align-self: flex-end;
+    background: linear-gradient(135deg, rgba(0, 242, 254, 0.25), rgba(126, 255, 219, 0.2));
+    border: 1px solid rgba(0, 242, 254, 0.45);
+    color: #fff;
+    border-bottom-left-radius: 4px;
+}
+
+.test-msg .msg-sender {
+    font-size: 0.75rem;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--primary-light);
+}
+
+.test-msg.user .msg-sender {
+    color: #fff;
+    opacity: 0.8;
+}
+
+.test-msg .msg-body {
+    word-break: break-word;
+    white-space: pre-wrap;
+}
+
+.test-chat-input-row {
+    display: flex;
+    gap: 10px;
+    padding: 0.8rem 1.2rem;
+    background: rgba(13, 21, 40, 0.95);
+    border-top: 1px solid var(--border-subtle);
+    align-items: center;
+}
+
+/* Modal text preview adjustments */
+#kbFileModal .preview-modal-header {
+    border-radius: 16px 16px 0 0;
+}
+
+#kbFileModal > div:last-child {
+    background: rgba(6, 10, 20, 0.95);
+    border: 1px solid var(--border-subtle);
+    border-top: none;
+    border-radius: 0 0 16px 16px;
+}
+
+/* ==========================================================================
    LIVE PREVIEW MODAL / DRAWER
    ========================================================================== */
 .preview-modal {
