@@ -1,0 +1,1000 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة تحكم المشرف | سَنَع</title>
+    <link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="admin.css?v=1">
+</head>
+<body>
+
+    <!-- ====================================================================
+         1. AUTHENTICATION / LOGIN OVERLAY
+         ==================================================================== -->
+    <div id="adminAuthWrapper" class="admin-auth-wrapper">
+        <div class="auth-box">
+            <div class="auth-brand">
+                <div class="brand-icon">⚡</div>
+                <h1 class="auth-title">لوحة تحكم سَنَع</h1>
+                <p class="auth-subtitle">بوابة إدارة المحتوى الشاملة والتحكم بالموقع</p>
+            </div>
+
+            <form id="adminLoginForm" onsubmit="handleAdminLogin(event)">
+                <div class="form-floating">
+                    <label for="adminEmail">البريد الإلكتروني للمشرف</label>
+                    <input type="email" id="adminEmail" class="auth-input" placeholder="admin@sana.ai" required>
+                </div>
+
+                <div class="form-floating">
+                    <label for="adminPassword">كلمة المرور</label>
+                    <input type="password" id="adminPassword" class="auth-input" placeholder="••••••••" required>
+                </div>
+
+                <button type="submit" id="btnLoginSubmit" class="auth-btn-submit">
+                    <span>تسجيل الدخول إلى لوحة التحكم</span>
+                    <span id="loginSpinner" style="display: none;">⏳</span>
+                </button>
+            </form>
+
+            <div class="auth-helper-box">
+                <strong style="color: var(--primary-light); display: block; margin-bottom: 4px;">ℹ️ ملاحظة بخصوص Supabase:</strong>
+                النظام مهيأ للمصادقة عبر Supabase Auth. إذا لم تقم بإنشاء حسابك بعد في سوبابيز، يمكنك الدخول تجريبياً باستخدام البريد الافتراضي <code>admin@sana.ai</code> أو النقر أدناه:
+                <div style="margin-top: 8px; text-align: center;">
+                    <button type="button" onclick="bypassLoginForDemo()" style="background: rgba(0, 242, 254, 0.15); border: 1px solid rgba(0, 242, 254, 0.4); color: var(--primary); padding: 5px 12px; border-radius: 8px; font-family: inherit; font-size: 0.8rem; cursor: pointer; font-weight: bold;">
+                        🚀 دخول سريع كمسؤول (وضع التهيئة)
+                    </button>
+                </div>
+            </div>
+
+            <a href="index.html" class="auth-back-link">← العودة إلى الموقع الرئيسي</a>
+        </div>
+    </div>
+
+
+    <!-- ====================================================================
+         2. MAIN ADMIN DASHBOARD
+         ==================================================================== -->
+    <div id="adminApp" class="admin-app" style="display: none;">
+        
+        <!-- SIDEBAR -->
+        <aside class="admin-sidebar" id="adminSidebar">
+            <div class="sidebar-header">
+                <div class="sidebar-logo">
+                    <div class="logo-badge">س</div>
+                    <div class="logo-info">
+                        <h2>سَنَع الإدارة</h2>
+                        <span>CONTROL PANEL</span>
+                    </div>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">الرئيسية والتحكم</div>
+                <a class="nav-item active" data-tab="overview">
+                    <i>📊</i> <span>نظرة عامة ومؤشرات</span>
+                </a>
+
+                <div class="nav-section-label">أقسام الموقع</div>
+                <a class="nav-item" data-tab="hero">
+                    <i>🚀</i> <span>الهيدر والواجهة الرئيسية</span>
+                </a>
+                <a class="nav-item" data-tab="vision">
+                    <i>👁️</i> <span>الرؤية والفلسفة</span>
+                </a>
+                <a class="nav-item" data-tab="pillars">
+                    <i>🏛️</i> <span>الركائز الأربع للتقنية</span>
+                </a>
+                <a class="nav-item" data-tab="journey">
+                    <i>🌅</i> <span>الرحلة اليومية المتكاملة</span>
+                </a>
+                <a class="nav-item" data-tab="sandbox">
+                    <i>🧪</i> <span>المختبر التفاعلي والغرفة</span>
+                </a>
+                <a class="nav-item" data-tab="impact">
+                    <i>📈</i> <span>حاسبة الأثر وخارطة الطريق</span>
+                </a>
+                <a class="nav-item" data-tab="science">
+                    <i>🔬</i> <span>الأساس العلمي والشركاء</span>
+                </a>
+                <a class="nav-item" data-tab="ctas">
+                    <i>📣</i> <span>أزرار الدعوة والفوتر</span>
+                </a>
+
+                <div class="nav-section-label">النظام وقاعدة البيانات</div>
+                <a class="nav-item" data-tab="settings">
+                    <i>⚙️</i> <span>إعدادات سوبابيز والنسخ</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="admin-user-pill">
+                    <div class="user-avatar" id="sidebarAvatar">A</div>
+                    <div class="user-meta">
+                        <div class="name" id="sidebarUserEmail">admin@sana.ai</div>
+                        <div class="status">
+                            <span class="status-dot"></span>
+                            <span id="sidebarStatusText">نشط ومصرح له</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="sidebar-actions">
+                    <a href="index.html" target="_blank" class="btn-sidebar-action">
+                        <span>🌐</span> <span>الموقع</span>
+                    </a>
+                    <button type="button" class="btn-sidebar-action logout" onclick="handleAdminLogout()">
+                        <span>🚪</span> <span>خروج</span>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- MAIN AREA -->
+        <div class="admin-main">
+            <!-- Topbar -->
+            <header class="admin-topbar">
+                <div class="topbar-breadcrumbs">
+                    <button class="mobile-menu-trigger btn-sidebar-action" style="display: none;" onclick="toggleMobileSidebar()">☰</button>
+                    <span>لوحة التحكم</span>
+                    <span>/</span>
+                    <strong id="currentTabBreadcrumb">نظرة عامة ومؤشرات</strong>
+                </div>
+
+                <div class="topbar-actions">
+                    <div class="sync-badge" id="topbarSyncBadge">
+                        <span class="status-dot"></span>
+                        <span id="syncBadgeText">جاهز للحفظ</span>
+                    </div>
+
+                    <button type="button" class="btn-action-preview" onclick="openLivePreview()">
+                        <span>👁️</span> <span>معاينة حية</span>
+                    </button>
+
+                    <button type="button" class="btn-action-save" id="btnSaveAll" onclick="handleSaveAll()">
+                        <span>💾</span> <span>حفظ كافة التعديلات</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Main Content Area with Dynamic Panels -->
+            <main class="admin-content">
+
+                <!-- TAB 1: OVERVIEW -->
+                <section id="tab-overview" class="panel-section active">
+                    <div class="panel-header">
+                        <h1><i>📊</i> نظرة عامة وإدارة المحتوى</h1>
+                        <p>مرحباً بك في لوحة تحكم موقع سَنَع. يمكنك من هنا تعديل النصوص، الفقرات، العناوين، واستبدال الصور فورياً.</p>
+                    </div>
+
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <div class="stat-icon cyan">🚀</div>
+                            <div class="stat-info">
+                                <h3 id="statSectionsCount">9</h3>
+                                <p>أقسام قابلة للتعديل</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-icon mint">🖼️</div>
+                            <div class="stat-info">
+                                <h3>صور ديناميكية</h3>
+                                <p>دعم الرفع المباشر والروابط</p>
+                            </div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-icon purple">⚡</div>
+                            <div class="stat-info">
+                                <h3 id="statDbStatus">سحابي ومحلي</h3>
+                                <p>حفظ مزدوج وفوري</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="edit-grid">
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>إجراءات سريعة</span>
+                                <span class="tag">روابط فورية</span>
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <button type="button" class="btn-upload-file" style="justify-content: flex-start;" onclick="switchAdminTab('hero')">
+                                    <span>✏️</span> تعديل الهيدر وصورة البداية
+                                </button>
+                                <button type="button" class="btn-upload-file" style="justify-content: flex-start;" onclick="switchAdminTab('sandbox')">
+                                    <span>🧪</span> تعديل صورة ونقاط مختبر سَنَع
+                                </button>
+                                <button type="button" class="btn-upload-file" style="justify-content: flex-start;" onclick="switchAdminTab('pillars')">
+                                    <span>🏛️</span> تعديل محتوى الركائز الأربع
+                                </button>
+                                <button type="button" class="btn-upload-file" style="justify-content: flex-start;" onclick="openLivePreview()">
+                                    <span>👁️</span> معاينة الموقع بحجم الشاشة الكاملة
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>بيانات الهوية والموقع (Brand)</span>
+                                <span class="tag">العلامة التجارية</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان صفحة الويب في المتصفح (Browser Title)</label>
+                                <input type="text" class="form-control" data-model="brand.siteTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">اسم المنصة بالعربية</label>
+                                <input type="text" class="form-control" data-model="brand.nameAr">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">اسم المنصة بالإنجليزية</label>
+                                <input type="text" class="form-control" data-model="brand.nameEn">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 2: HERO & MAIN -->
+                <section id="tab-hero" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>🚀</i> الهيدر والواجهة الرئيسية (Hero Section)</h1>
+                        <p>تعديل نصوص الترحيب الرئيسية، الأزرار، وصورة واجهة الموقع.</p>
+                    </div>
+
+                    <div class="edit-grid">
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>النصوص والعناوين</span>
+                                <span class="tag">واجهة الموقع</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">العنوان الرئيسي الكبير</label>
+                                <input type="text" class="form-control" data-model="hero.title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف والفقرة التوضيحية</label>
+                                <textarea class="form-control" data-model="hero.desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نص زر الدعوة (CTA Button)</label>
+                                <input type="text" class="form-control" data-model="hero.btnText">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">رابط الزر (مثل #philosophy)</label>
+                                <input type="text" class="form-control" data-model="hero.btnLink">
+                            </div>
+                        </div>
+
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>صورة الهيرو الرئيسية (Hero Image)</span>
+                                <span class="tag">صورة</span>
+                            </div>
+                            
+                            <!-- Image Uploader Component for Hero -->
+                            <div class="image-uploader-box" id="heroImageUploader">
+                                <div class="preview-thumbnail-wrapper">
+                                    <img id="preview_hero_image" src="assets/sana_hero_dark.png" class="preview-thumbnail" alt="معاينة الصورة">
+                                </div>
+                                <div class="uploader-controls">
+                                    <label class="btn-upload-file">
+                                        <span>📁</span> <span>رفع صورة من جهازك</span>
+                                        <input type="file" accept="image/*" style="display: none;" onchange="handleImageFileUpload(event, 'hero.image', 'preview_hero_image')">
+                                    </label>
+                                    <span class="uploader-or">أو أدخل مسار / رابط الصورة المباشر:</span>
+                                    <input type="text" class="form-control" data-model="hero.image" oninput="handleImageUrlInput(this.value, 'preview_hero_image')" placeholder="assets/sana_hero_dark.png">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 3: VISION & PHILOSOPHY -->
+                <section id="tab-vision" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>👁️</i> الرؤية والفلسفة العميقة (Vision & Philosophy)</h1>
+                        <p>تعديل عنوان القسم وبطاقات الرؤية، تكنولوجيا المهارات ومأسسة القدرات.</p>
+                    </div>
+
+                    <div class="form-group" style="max-width: 500px; margin-bottom: 1.5rem;">
+                        <label class="form-label">عنوان القسم الرئيسي</label>
+                        <input type="text" class="form-control" data-model="vision.headerTitle">
+                    </div>
+
+                    <div class="edit-grid">
+                        <!-- Card 1 -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>بطاقة الرؤية (Card 1)</span>
+                                <span class="tag">الرؤية</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان البطاقة</label>
+                                <input type="text" class="form-control" data-model="vision.card1Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الفقرة الأولى</label>
+                                <textarea class="form-control" data-model="vision.card1P1"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الفقرة الثانية</label>
+                                <textarea class="form-control" data-model="vision.card1P2"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Card 2 -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>بطاقة تكنولوجيا المهارات (Card 2)</span>
+                                <span class="tag">الفلسفة</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان البطاقة</label>
+                                <input type="text" class="form-control" data-model="vision.card2Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نص البطاقة</label>
+                                <textarea class="form-control" style="min-height: 140px;" data-model="vision.card2Text"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Card 3 -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>بطاقة مأسسة القدرات (Card 3)</span>
+                                <span class="tag">القدرات</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان البطاقة</label>
+                                <input type="text" class="form-control" data-model="vision.card3Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نص البطاقة</label>
+                                <textarea class="form-control" style="min-height: 140px;" data-model="vision.card3Text"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 4: FOUR PILLARS -->
+                <section id="tab-pillars" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>🏛️</i> الركائز الأربع للتقنيات الخفية (Four Pillars)</h1>
+                        <p>تعديل عناوين الركائز وعناصر كل ركيزة مع نصوص النوافذ المنبثقة التفصيلية.</p>
+                    </div>
+
+                    <div class="form-group" style="max-width: 500px; margin-bottom: 1.5rem;">
+                        <label class="form-label">عنوان القسم الرئيسي</label>
+                        <input type="text" class="form-control" data-model="pillars.headerTitle">
+                    </div>
+
+                    <div class="edit-grid">
+                        <!-- Pillar 1 -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>الركيزة 1: التوجيه الحركي والمكاني</span>
+                                <span class="tag">Pillar 1</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان الركيزة</label>
+                                <input type="text" class="form-control" data-model="pillars.p1Title">
+                            </div>
+                            <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 1rem 0;">
+                            <div class="form-group">
+                                <label class="form-label">العنصر 1 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p1Item1Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة (Popup Text):</small></label>
+                                <textarea class="form-control" data-model="pillars.p1Item1Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">العنصر 2 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p1Item2Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p1Item2Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">العنصر 3 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p1Item3Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p1Item3Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">العنصر 4 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p1Item4Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p1Item4Desc"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Pillar 2 -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>الركيزة 2: التنظيم العاطفي والتفاعل الاجتماعي</span>
+                                <span class="tag">Pillar 2</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان الركيزة</label>
+                                <input type="text" class="form-control" data-model="pillars.p2Title">
+                            </div>
+                            <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 1rem 0;">
+                            <div class="form-group">
+                                <label class="form-label">العنصر 1 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p2Item1Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p2Item1Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">العنصر 2 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p2Item2Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p2Item2Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">العنصر 3 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p2Item3Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p2Item3Desc"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Pillar 3 -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>الركيزة 3: المحاكاة العقلية وإدارة الأزمات</span>
+                                <span class="tag">Pillar 3</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان الركيزة</label>
+                                <input type="text" class="form-control" data-model="pillars.p3Title">
+                            </div>
+                            <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 1rem 0;">
+                            <div class="form-group">
+                                <label class="form-label">العنصر 1 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p3Item1Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p3Item1Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">العنصر 2 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p3Item2Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p3Item2Desc"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Pillar 4 -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>الركيزة 4: المأسسة والقياس</span>
+                                <span class="tag">Pillar 4</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان الركيزة</label>
+                                <input type="text" class="form-control" data-model="pillars.p4Title">
+                            </div>
+                            <hr style="border: none; border-top: 1px solid var(--border-subtle); margin: 1rem 0;">
+                            <div class="form-group">
+                                <label class="form-label">العنصر 1 - الاسم</label>
+                                <input type="text" class="form-control" data-model="pillars.p4Item1Text">
+                                <label class="form-label" style="margin-top: 6px;"><small>التفاصيل المنبثقة:</small></label>
+                                <textarea class="form-control" data-model="pillars.p4Item1Desc"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 5: DAILY JOURNEY -->
+                <section id="tab-journey" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>🌅</i> الرحلة اليومية المتكاملة (Daily Journey)</h1>
+                        <p>تعديل محطات اليوم الأربع: الصباح، التوتر والتهدئة، بعد الظهر، ونهاية اليوم.</p>
+                    </div>
+
+                    <div class="form-group" style="max-width: 500px; margin-bottom: 1.5rem;">
+                        <label class="form-label">عنوان القسم الرئيسي</label>
+                        <input type="text" class="form-control" data-model="journey.headerTitle">
+                    </div>
+
+                    <div class="edit-grid">
+                        <div class="card-block">
+                            <div class="card-title"><span>المرحلة 1: الصباح</span></div>
+                            <div class="form-group">
+                                <label class="form-label">العنوان</label>
+                                <input type="text" class="form-control" data-model="journey.step1Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف</label>
+                                <textarea class="form-control" data-model="journey.step1Desc"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="card-block">
+                            <div class="card-title"><span>المرحلة 2: التوتر والتهدئة</span></div>
+                            <div class="form-group">
+                                <label class="form-label">العنوان</label>
+                                <input type="text" class="form-control" data-model="journey.step2Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف</label>
+                                <textarea class="form-control" data-model="journey.step2Desc"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="card-block">
+                            <div class="card-title"><span>المرحلة 3: بعد الظهر</span></div>
+                            <div class="form-group">
+                                <label class="form-label">العنوان</label>
+                                <input type="text" class="form-control" data-model="journey.step3Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف</label>
+                                <textarea class="form-control" data-model="journey.step3Desc"></textarea>
+                            </div>
+                        </div>
+
+                        <div class="card-block">
+                            <div class="card-title"><span>المرحلة 4: النهاية</span></div>
+                            <div class="form-group">
+                                <label class="form-label">العنوان</label>
+                                <input type="text" class="form-control" data-model="journey.step4Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف</label>
+                                <textarea class="form-control" data-model="journey.step4Desc"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 6: INTERACTIVE SANDBOX -->
+                <section id="tab-sandbox" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>🧪</i> مختبر سَنَع التفاعلي (Interactive Sandbox)</h1>
+                        <p>تعديل صورة الغرفة التفاعلية ومحتوى النقاط المضيئة (Hotspots).</p>
+                    </div>
+
+                    <div class="edit-grid">
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>صورة الغرفة التفاعلية ومقدمة القسم</span>
+                                <span class="tag">الصورة والخلفية</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان القسم</label>
+                                <input type="text" class="form-control" data-model="sandbox.headerTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف التوجيهي للقسم</label>
+                                <textarea class="form-control" data-model="sandbox.subtitle"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان الصندوق التوضيحي الافتراضي</label>
+                                <input type="text" class="form-control" data-model="sandbox.defaultTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نص الصندوق التوضيحي الافتراضي</label>
+                                <textarea class="form-control" data-model="sandbox.defaultDesc"></textarea>
+                            </div>
+
+                            <div class="image-uploader-box" style="margin-top: 1.5rem;">
+                                <label class="form-label">صورة الغرفة التفاعلية:</label>
+                                <div class="preview-thumbnail-wrapper">
+                                    <img id="preview_sandbox_image" src="assets/sana_hero.png" class="preview-thumbnail" alt="صورة الغرفة">
+                                </div>
+                                <div class="uploader-controls">
+                                    <label class="btn-upload-file">
+                                        <span>📁</span> <span>رفع صورة غرفة جديدة من جهازك</span>
+                                        <input type="file" accept="image/*" style="display: none;" onchange="handleImageFileUpload(event, 'sandbox.image', 'preview_sandbox_image')">
+                                    </label>
+                                    <span class="uploader-or">أو أدخل مسار / رابط الصورة:</span>
+                                    <input type="text" class="form-control" data-model="sandbox.image" oninput="handleImageUrlInput(this.value, 'preview_sandbox_image')" placeholder="assets/sana_hero.png">
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>النقاط التفاعلية في الغرفة (Hotspots)</span>
+                                <span class="tag">3 نقاط</span>
+                            </div>
+
+                            <!-- Spot 1 -->
+                            <div class="form-group" style="padding: 10px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--border-subtle);">
+                                <label class="form-label">النقطة 1 (الخزانة) - العنوان</label>
+                                <input type="text" class="form-control" data-model="sandbox.spot1Title">
+                                <label class="form-label" style="margin-top: 6px;"><small>الوصف عند النقر:</small></label>
+                                <textarea class="form-control" data-model="sandbox.spot1Desc"></textarea>
+                            </div>
+
+                            <!-- Spot 2 -->
+                            <div class="form-group" style="padding: 10px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--border-subtle); margin-top: 10px;">
+                                <label class="form-label">النقطة 2 (الأرضية) - العنوان</label>
+                                <input type="text" class="form-control" data-model="sandbox.spot2Title">
+                                <label class="form-label" style="margin-top: 6px;"><small>الوصف عند النقر:</small></label>
+                                <textarea class="form-control" data-model="sandbox.spot2Desc"></textarea>
+                            </div>
+
+                            <!-- Spot 3 -->
+                            <div class="form-group" style="padding: 10px; background: rgba(255,255,255,0.02); border-radius: 12px; border: 1px solid var(--border-subtle); margin-top: 10px;">
+                                <label class="form-label">النقطة 3 (المرآة الاجتماعية) - العنوان</label>
+                                <input type="text" class="form-control" data-model="sandbox.spot3Title">
+                                <label class="form-label" style="margin-top: 6px;"><small>الوصف عند النقر:</small></label>
+                                <textarea class="form-control" data-model="sandbox.spot3Desc"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 7: IMPACT & ROADMAP -->
+                <section id="tab-impact" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>📈</i> حاسبة الأثر وخارطة الطريق (ROI & Roadmap)</h1>
+                        <p>تعديل نصوص حاسبة التوفير المالي ومراحل خارطة الطريق المستقبلية.</p>
+                    </div>
+
+                    <div class="edit-grid">
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>حاسبة الأثر الاجتماعي (Social ROI)</span>
+                                <span class="tag">الحاسبة</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان القسم</label>
+                                <input type="text" class="form-control" data-model="impact.headerTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف</label>
+                                <textarea class="form-control" data-model="impact.subtitle"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان نتيجة التوفير</label>
+                                <input type="text" class="form-control" data-model="impact.savingsTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">شرح نتيجة التوفير</label>
+                                <input type="text" class="form-control" data-model="impact.savingsDesc">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان مهارات البلوك تشين</label>
+                                <input type="text" class="form-control" data-model="impact.skillsTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">شرح مهارات البلوك تشين</label>
+                                <input type="text" class="form-control" data-model="impact.skillsDesc">
+                            </div>
+                        </div>
+
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>خارطة طريق التنفيذ (Roadmap)</span>
+                                <span class="tag">4 مراحل</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان قسم خارطة الطريق</label>
+                                <input type="text" class="form-control" data-model="roadmap.headerTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">المرحلة الأولى - العنوان</label>
+                                <input type="text" class="form-control" data-model="roadmap.phase1Title">
+                                <label class="form-label" style="margin-top: 4px;"><small>الوصف:</small></label>
+                                <input type="text" class="form-control" data-model="roadmap.phase1Desc">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">المرحلة الثانية - العنوان</label>
+                                <input type="text" class="form-control" data-model="roadmap.phase2Title">
+                                <label class="form-label" style="margin-top: 4px;"><small>الوصف:</small></label>
+                                <input type="text" class="form-control" data-model="roadmap.phase2Desc">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">المرحلة الثالثة - العنوان</label>
+                                <input type="text" class="form-control" data-model="roadmap.phase3Title">
+                                <label class="form-label" style="margin-top: 4px;"><small>الوصف:</small></label>
+                                <input type="text" class="form-control" data-model="roadmap.phase3Desc">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">المرحلة الرابعة - العنوان</label>
+                                <input type="text" class="form-control" data-model="roadmap.phase4Title">
+                                <label class="form-label" style="margin-top: 4px;"><small>الوصف:</small></label>
+                                <input type="text" class="form-control" data-model="roadmap.phase4Desc">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 8: SCIENCE & PARTNERS -->
+                <section id="tab-science" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>🔬</i> الأساس العلمي وميثاق الخصوصية والشركاء</h1>
+                        <p>تعديل نقاط الأساس العلمي (Neuroscience)، ميثاق الخصوصية، وأسماء الشركاء المستهدفين.</p>
+                    </div>
+
+                    <div class="form-group" style="max-width: 500px; margin-bottom: 1.5rem;">
+                        <label class="form-label">عنوان القسم الرئيسي</label>
+                        <input type="text" class="form-control" data-model="science.headerTitle">
+                    </div>
+
+                    <div class="edit-grid">
+                        <!-- Neuroscience -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>الأساس العلمي (Neuroscience)</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان البطاقة</label>
+                                <input type="text" class="form-control" data-model="science.scienceTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">النقطة 1 - العنوان والشرح</label>
+                                <input type="text" class="form-control" data-model="science.science1Title">
+                                <textarea class="form-control" style="margin-top: 4px;" data-model="science.science1Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">النقطة 2 - العنوان والشرح</label>
+                                <input type="text" class="form-control" data-model="science.science2Title">
+                                <textarea class="form-control" style="margin-top: 4px;" data-model="science.science2Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">النقطة 3 - العنوان والشرح</label>
+                                <input type="text" class="form-control" data-model="science.science3Title">
+                                <textarea class="form-control" style="margin-top: 4px;" data-model="science.science3Desc"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Ethics -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>ميثاق الخصوصية والأخلاقيات</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان البطاقة</label>
+                                <input type="text" class="form-control" data-model="science.ethicsTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">البند 1 - العنوان والشرح</label>
+                                <input type="text" class="form-control" data-model="science.ethics1Title">
+                                <textarea class="form-control" style="margin-top: 4px;" data-model="science.ethics1Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">البند 2 - العنوان والشرح</label>
+                                <input type="text" class="form-control" data-model="science.ethics2Title">
+                                <textarea class="form-control" style="margin-top: 4px;" data-model="science.ethics2Desc"></textarea>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">البند 3 - العنوان والشرح</label>
+                                <input type="text" class="form-control" data-model="science.ethics3Title">
+                                <textarea class="form-control" style="margin-top: 4px;" data-model="science.ethics3Desc"></textarea>
+                            </div>
+                        </div>
+
+                        <!-- Partners -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>الشركاء المستهدفون للنموذج الأولي</span>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">عنوان بطاقة الشركاء</label>
+                                <input type="text" class="form-control" data-model="science.partnersTitle">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الشريك 1</label>
+                                <input type="text" class="form-control" data-model="science.partner1">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الشريك 2</label>
+                                <input type="text" class="form-control" data-model="science.partner2">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الشريك 3</label>
+                                <input type="text" class="form-control" data-model="science.partner3">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 9: CTAs & FOOTER -->
+                <section id="tab-ctas" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>📣</i> أزرار الدعوة والفوتر (CTAs & Footer)</h1>
+                        <p>تعديل بطاقات التواصل الثلاث ونصوص حقوق النشر وروابط الفوتر.</p>
+                    </div>
+
+                    <div class="edit-grid">
+                        <!-- CTA 1 -->
+                        <div class="card-block">
+                            <div class="card-title"><span>بطاقة المستثمرين</span></div>
+                            <div class="form-group">
+                                <label class="form-label">العنوان</label>
+                                <input type="text" class="form-control" data-model="ctas.card1Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف</label>
+                                <input type="text" class="form-control" data-model="ctas.card1Desc">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نص الزر</label>
+                                <input type="text" class="form-control" data-model="ctas.card1Btn">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الرابط</label>
+                                <input type="text" class="form-control" data-model="ctas.card1Link">
+                            </div>
+                        </div>
+
+                        <!-- CTA 2 -->
+                        <div class="card-block">
+                            <div class="card-title"><span>بطاقة الجهات الحكومية والابتكارية</span></div>
+                            <div class="form-group">
+                                <label class="form-label">العنوان</label>
+                                <input type="text" class="form-control" data-model="ctas.card2Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف</label>
+                                <input type="text" class="form-control" data-model="ctas.card2Desc">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نص الزر</label>
+                                <input type="text" class="form-control" data-model="ctas.card2Btn">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الرابط</label>
+                                <input type="text" class="form-control" data-model="ctas.card2Link">
+                            </div>
+                        </div>
+
+                        <!-- CTA 3 -->
+                        <div class="card-block">
+                            <div class="card-title"><span>بطاقة أولياء الأمور والمختصين</span></div>
+                            <div class="form-group">
+                                <label class="form-label">العنوان</label>
+                                <input type="text" class="form-control" data-model="ctas.card3Title">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الوصف</label>
+                                <input type="text" class="form-control" data-model="ctas.card3Desc">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نص الزر</label>
+                                <input type="text" class="form-control" data-model="ctas.card3Btn">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">الرابط</label>
+                                <input type="text" class="form-control" data-model="ctas.card3Link">
+                            </div>
+                        </div>
+
+                        <!-- Footer Info -->
+                        <div class="card-block" style="grid-column: 1 / -1;">
+                            <div class="card-title"><span>الفوتر وحقوق النشر (Footer)</span></div>
+                            <div class="form-group">
+                                <label class="form-label">جملة الفوتر الرئيسية (Tagline)</label>
+                                <input type="text" class="form-control" data-model="footer.tagline">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">نص الحقوق وسنة النشر</label>
+                                <input type="text" class="form-control" data-model="footer.copyright">
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+
+                <!-- TAB 10: SETTINGS & SUPABASE -->
+                <section id="tab-settings" class="panel-section">
+                    <div class="panel-header">
+                        <h1><i>⚙️</i> إعدادات سوبابيز (Supabase) والنسخ الاحتياطي</h1>
+                        <p>ربط قاعدة بيانات سوبابيز، نسخ كود الـ SQL، استيراد وتصدير نسخة احتياطية من الموقع.</p>
+                    </div>
+
+                    <div class="edit-grid-full">
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>حالة الاتصال بـ Supabase</span>
+                                <span class="tag" id="settingsDbStatusBadge">فحص الاتصال...</span>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 1rem;">
+                                لتمكين حفظ ومزامنة كافة نصوص وصور الموقع سحابياً في حسابك على <strong>Supabase</strong>، انسخ كود الـ SQL التالي وشغّله في <strong>SQL Editor</strong> داخل لوحة تحكم سوبابيز:
+                            </p>
+
+                            <div class="sql-box">
+                                <button type="button" class="btn-copy-sql" onclick="copySqlScript()">📋 نسخ كود الـ SQL</button>
+                                <pre class="sql-code" id="sqlCodeBlock">-- إنشاء جدول حفظ محتوى موقع سَنَع
+CREATE TABLE IF NOT EXISTS public.site_content (
+    id TEXT PRIMARY KEY,
+    content JSONB NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- تفعيل سياسات الأمان RLS
+ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
+
+-- السماح للجميع بقراءة المحتوى (Public Read)
+CREATE POLICY "Allow public read-only access" 
+ON public.site_content FOR SELECT USING (true);
+
+-- السماح بتعديل المحتوى للمستخدمين المسجلين أو عبر anon
+CREATE POLICY "Allow update access" 
+ON public.site_content FOR ALL USING (true) WITH CHECK (true);</pre>
+                            </div>
+
+                            <div style="margin-top: 1.5rem; display: flex; gap: 12px; flex-wrap: wrap;">
+                                <button type="button" class="btn-upload-file" onclick="testSupabaseConnection()">
+                                    <span>🔄</span> <span>إعادة فحص الاتصال بـ Supabase</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>النسخ الاحتياطي والاستيراد (Backup & Restore)</span>
+                                <span class="tag">JSON</span>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                                يمكنك تصدير ملف يحتوي على كامل إعدادات ونصوص الموقع كنسخة احتياطية على جهازك، أو استيراد ملف سابق لاسترجاعه.
+                            </p>
+                            <div style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                <button type="button" class="btn-upload-file" onclick="exportContentAsJson()">
+                                    <span>📥</span> <span>تصدير نسخة احتياطية (JSON)</span>
+                                </button>
+                                <label class="btn-upload-file">
+                                    <span>📤</span> <span>استيراد ملف نسخة احتياطية (JSON)</span>
+                                    <input type="file" accept=".json" style="display: none;" onchange="importContentFromJson(event)">
+                                </label>
+                                <button type="button" class="btn-sidebar-action logout" style="padding: 0.65rem 1.2rem; font-weight: bold;" onclick="handleResetToFactory()">
+                                    <span>⚠️</span> <span>استعادة المحتوى الافتراضي للموقع</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+            </main>
+        </div>
+    </div>
+
+
+    <!-- ====================================================================
+         3. LIVE PREVIEW MODAL / DRAWER
+         ==================================================================== -->
+    <div id="livePreviewModal" class="preview-modal">
+        <div class="preview-modal-header">
+            <h3><span>👁️</span> <span>معاينة الموقع الحية</span></h3>
+            <div class="preview-devices">
+                <button type="button" class="btn-device active" onclick="setPreviewDevice('100%', this)">كمبيوتر (100%)</button>
+                <button type="button" class="btn-device" onclick="setPreviewDevice('768px', this)">تابلت (768px)</button>
+                <button type="button" class="btn-device" onclick="setPreviewDevice('390px', this)">موبايل (390px)</button>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <button type="button" class="btn-device" onclick="refreshPreviewFrame()">🔄 تحديث</button>
+                <button type="button" class="btn-close-preview" onclick="closeLivePreview()">✕</button>
+            </div>
+        </div>
+        <div class="preview-frame-container">
+            <iframe id="previewIframe" class="preview-frame" src="index.html"></iframe>
+        </div>
+    </div>
+
+    <!-- ====================================================================
+         4. TOAST NOTIFICATIONS CONTAINER
+         ==================================================================== -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="supabase.js?v=2"></script>
+    <script src="site-content.js?v=1"></script>
+    <script src="admin.js?v=1"></script>
+</body>
+</html>

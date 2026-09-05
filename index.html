@@ -72,13 +72,13 @@
 
     <header class="hero" id="home">
         <div class="hero-content">
-            <h1 class="fade-up">رحلة تحرير المهارة من قيد الشاشة</h1>
-            <p class="fade-up delay-1" style="color: var(--text-light);">نحن لا نقدم مجرد "تطبيق" آخر، بل نقدم تحولاً
+            <h1 class="fade-up" data-cms="hero.title">رحلة تحرير المهارة من قيد الشاشة</h1>
+            <p class="fade-up delay-1" style="color: var(--text-light);" data-cms="hero.desc">نحن لا نقدم مجرد "تطبيق" آخر، بل نقدم تحولاً
                 جذرياً في مفهوم النفاذ الرقمي، ونصوغ مقترحنا تحت مظلة "التقنيات الخفية".</p>
-            <a href="#philosophy" class="btn-primary fade-up delay-2">اكتشف سَنَع</a>
+            <a href="#philosophy" class="btn-primary fade-up delay-2" data-cms="hero.btnText" data-cms-link="hero.btnLink">اكتشف سَنَع</a>
         </div>
         <div class="hero-image-container fade-in delay-3">
-            <img src="assets/sana_hero_dark.png" alt="طفل يتفاعل مع تقنية خفية في غرفته" class="hero-img"
+            <img src="assets/sana_hero_dark.png" alt="طفل يتفاعل مع تقنية خفية في غرفته" class="hero-img" data-cms-img="hero.image"
                 style="border: 1px solid rgba(0, 242, 254, 0.3); box-shadow: var(--glow-cyan);">
             <div class="glow-effect"></div>
         </div>
@@ -87,38 +87,38 @@
     <section id="philosophy" class="section">
         <div class="container">
             <div class="section-header">
-                <h2>رؤيتنا والفلسفة العميقة</h2>
+                <h2 data-cms="vision.headerTitle">رؤيتنا والفلسفة العميقة</h2>
                 <div class="divider"></div>
             </div>
 
             <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
                 <!-- Card 1: Vision -->
                 <div class="glass-card scroll-reveal vision-card-hover">
-                    <h3 style="color: var(--primary-color); margin-bottom: 0.8rem; font-size: 1.15rem;">رؤيتنا</h3>
-                    <p style="color: var(--text-light); text-align: right;">
+                    <h3 style="color: var(--primary-color); margin-bottom: 0.8rem; font-size: 1.15rem;" data-cms="vision.card1Title">رؤيتنا</h3>
+                    <p style="color: var(--text-light); text-align: right;" data-cms="vision.card1P1">
                         في السباق الرقمي المحموم، سقطت فئة غالية من أطفالنا - ذوي الإعاقة الذهنية البسيطة وتشتت الانتباه
                         - في فجوة معرفية سحيقة.
                         <strong style="color: white;">سَنَع</strong> هي تكسير قيد الشاشة كلياً. إننا لا نطلب من الطفل أن
                         يتكيف مع التكنولوجيا؛ بل نجعل التكنولوجيا تذوب، وتختفي، وتتكيف مع بيئته الحركية.
                     </p>
-                    <p style="color: var(--text-light); text-align: right; margin-top: 1rem;">
+                    <p style="color: var(--text-light); text-align: right; margin-top: 1rem;" data-cms="vision.card1P2">
                         حيث يصبح صنبور المياه، وخزانة الملابس، وحتى نبض قلب الطفل، هي واجهة الاستخدام (Contextual UI).
                     </p>
                 </div>
 
                 <!-- Card 2: Philosophy 1 -->
                 <div class="glass-card scroll-reveal delay-1 vision-card-hover">
-                    <h3 style="color: var(--primary-color); margin-bottom: 0.8rem; font-size: 1.15rem;">تكنولوجيا
+                    <h3 style="color: var(--primary-color); margin-bottom: 0.8rem; font-size: 1.15rem;" data-cms="vision.card2Title">تكنولوجيا
                         المهارات</h3>
-                    <p style="color: var(--text-light); text-align: right;">مستلهم من كتاب "تكنولوجيا المهارات: نقل
+                    <p style="color: var(--text-light); text-align: right;" data-cms="vision.card2Text">مستلهم من كتاب "تكنولوجيا المهارات: نقل
                         وترسيخ المهارات الرقمية" للمستشار عبدالله السلحوت والمهندس عبدالرحمن خميس.</p>
                 </div>
 
                 <!-- Card 3: Philosophy 2 -->
                 <div class="glass-card scroll-reveal delay-2 vision-card-hover">
-                    <h3 style="color: var(--primary-color); margin-bottom: 0.8rem; font-size: 1.15rem;">مأسسة القدرات
+                    <h3 style="color: var(--primary-color); margin-bottom: 0.8rem; font-size: 1.15rem;" data-cms="vision.card3Title">مأسسة القدرات
                     </h3>
-                    <p style="color: var(--text-light); text-align: right;">المعرفة المجردة على الشاشات تسبب (Cognitive
+                    <p style="color: var(--text-light); text-align: right;" data-cms="vision.card3Text">المعرفة المجردة على الشاشات تسبب (Cognitive
                         Overload) عبئاً معرفياً. في سَنَع، نرسخ المهارات حركياً في ذاكرة الطفل وعضلاته، لتصبح
                         التكنولوجيا خادماً لتعقيدات الحياة، وليس عبئاً إضافياً.</p>
                 </div>
@@ -129,7 +129,7 @@
     <section id="pillars" class="section">
         <div class="container">
             <div class="section-header">
-                <h2>الركائز الأربع للتقنيات الخفية</h2>
+                <h2 data-cms="pillars.headerTitle">الركائز الأربع للتقنيات الخفية</h2>
                 <div class="divider"></div>
             </div>
             <div class="cards-grid">
@@ -141,18 +141,18 @@
                         <circle cx="12" cy="12" r="10"></circle>
                         <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
                     </svg>
-                    <h3>التوجيه الحركي والمكاني</h3>
+                    <h3 data-cms="pillars.p1Title">التوجيه الحركي والمكاني</h3>
                     <ul class="idea-list">
-                        <li
+                        <li data-cms="pillars.p1Item1Text" data-cms-detail="pillars.p1Item1Desc"
                             data-details="ملصقات ذكية تُوضع على أدوات المنزل بمجرد لمسها يظهر هولوغرام يشرح حركياً كيفية استخدامها.">
                             الملصقات السحرية (IoT Magic Tags)</li>
-                        <li
+                        <li data-cms="pillars.p1Item2Text" data-cms-detail="pillars.p1Item2Desc"
                             data-details="استخدام كاميرا الجهاز والذكاء الاصطناعي لإضاءة الأشياء المبعثرة لتدريب الطفل على مهارة الترتيب.">
                             المسار المضيء (Generative Spatial AI)</li>
-                        <li
+                        <li data-cms="pillars.p1Item3Text" data-cms-detail="pillars.p1Item3Desc"
                             data-details="قفاز ذكي خفيف الوزن يعتمد على الاستجابة اللمسية لتوجيه أصابع الطفل نحو الاتجاه الصحيح.">
                             الذاكرة العضلية (Haptic Muscle Memory)</li>
-                        <li
+                        <li data-cms="pillars.p1Item4Text" data-cms-detail="pillars.p1Item4Desc"
                             data-details="استخدام سماعات التوصيل العظمي لربط المهارة بالاتجاهات بصوت شخصيته الكرتونية المفضلة.">
                             التوجيه بالصوت المكاني</li>
                     </ul>
@@ -167,14 +167,14 @@
                             d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z">
                         </path>
                     </svg>
-                    <h3>التنظيم العاطفي والتفاعل الاجتماعي</h3>
+                    <h3 data-cms="pillars.p2Title">التنظيم العاطفي والتفاعل الاجتماعي</h3>
                     <ul class="idea-list">
-                        <li data-details="الطفل هو من يقوم بتعليم روبوت افتراضي عبر توجيه الكاميرا، لتعزيز ثقته بنفسه.">
+                        <li data-cms="pillars.p2Item1Text" data-cms-detail="pillars.p2Item1Desc" data-details="الطفل هو من يقوم بتعليم روبوت افتراضي عبر توجيه الكاميرا، لتعزيز ثقته بنفسه.">
                             التعلم العكسي (Reverse Learning)</li>
-                        <li
+                        <li data-cms="pillars.p2Item2Text" data-cms-detail="pillars.p2Item2Desc"
                             data-details="ربط المنصة بساعة ذكية لقياس نبض القلب، واستبدال المهام بتمارين تنفس عند اكتشاف التوتر.">
                             النبض الهادئ (Bio-Feedback)</li>
-                        <li
+                        <li data-cms="pillars.p2Item3Text" data-cms-detail="pillars.p2Item3Desc"
                             data-details="استخدام الكاميرا الأمامية كمرآة، يتدرب فيها الطفل على لغة الجسد والتواصل البصري مع طفل افتراضي.">
                             المرايا الاجتماعية (Social AI Mirrors)</li>
                     </ul>
@@ -191,12 +191,12 @@
                             d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0 0 18 8 6 6 0 0 0 6 8c0 1.45.62 2.81 1.5 3.5.76.76 1.23 1.52 1.41 2.5">
                         </path>
                     </svg>
-                    <h3>المحاكاة العقلية وإدارة الأزمات</h3>
+                    <h3 data-cms="pillars.p3Title">المحاكاة العقلية وإدارة الأزمات</h3>
                     <ul class="idea-list">
-                        <li
+                        <li data-cms="pillars.p3Item1Text" data-cms-detail="pillars.p3Item1Desc"
                             data-details="محاكاة واقع معزز لحالات طوارئ كالدخان في المطبخ لتدريب الطفل على الهرب المألوف.">
                             سيناريوهات الأمان المكاني</li>
-                        <li data-details="عصابة رأس تقرأ موجات الدماغ (EEG) مرتبطة بلعبة لا تعمل إلا بتركيز الطفل.">
+                        <li data-cms="pillars.p3Item2Text" data-cms-detail="pillars.p3Item2Desc" data-details="عصابة رأس تقرأ موجات الدماغ (EEG) مرتبطة بلعبة لا تعمل إلا بتركيز الطفل.">
                             التحكم بطاقة العقل (Neuro-feedback)</li>
                     </ul>
                 </div>
@@ -209,9 +209,9 @@
                         <circle cx="12" cy="8" r="7"></circle>
                         <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
                     </svg>
-                    <h3>المأسسة والقياس (التتويج)</h3>
+                    <h3 data-cms="pillars.p4Title">المأسسة والقياس (التتويج)</h3>
                     <ul class="idea-list">
-                        <li
+                        <li data-cms="pillars.p4Item1Text" data-cms-detail="pillars.p4Item1Desc"
                             data-details="سجل إنجاز مرئي غير قابل للتلاعب مبني على البلوك تشين، يثبت قدرات الطفل للمجتمع والمدارس.">
                             جواز السفر المهاري المرئي</li>
                     </ul>
@@ -223,74 +223,78 @@
     <section id="journey" class="section bg-gradient">
         <div class="container">
             <div class="section-header text-white">
-                <h2>رحلة يومية متكاملة</h2>
+                <h2 data-cms="journey.headerTitle">رحلة يومية متكاملة</h2>
                 <div class="divider white"></div>
             </div>
             <div class="timeline scroll-reveal">
                 <div class="timeline-item">
                     <div class="time-dot"></div>
                     <div class="time-content glass-card">
-                        <h4>الصباح</h4>
-                        <p>تبدأ بالتوجيه بالصوت المكاني ليستيقظ، ثم يستخدم الملصقات السحرية والقفاز الذكي لارتداء
+                        <h4 data-cms="journey.step1Title">الصباح</h4>
+                        <p data-cms="journey.step1Desc">تبدأ بالتوجيه بالصوت المكاني ليستيقظ، ثم يستخدم الملصقات السحرية والقفاز الذكي لارتداء
                             ملابسه.</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="time-dot"></div>
                     <div class="time-content glass-card">
-                        <h4>التوتر والتهدئة</h4>
-                        <p>إذا توتر، يتدخل "النبض الهادئ" لتهدئته بتمارين التنفس.</p>
+                        <h4 data-cms="journey.step2Title">التوتر والتهدئة</h4>
+                        <p data-cms="journey.step2Desc">إذا توتر، يتدخل "النبض الهادئ" لتهدئته بتمارين التنفس.</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="time-dot"></div>
                     <div class="time-content glass-card">
-                        <h4>بعد الظهر</h4>
-                        <p>يتعلم مهارات التواصل أمام "المرآة الاجتماعية"، ويدرب تركيزه بلعبة "طاقة العقل". ويرتب غرفته
+                        <h4 data-cms="journey.step3Title">بعد الظهر</h4>
+                        <p data-cms="journey.step3Desc">يتعلم مهارات التواصل أمام "المرآة الاجتماعية"، ويدرب تركيزه بلعبة "طاقة العقل". ويرتب غرفته
                             بـ"المسار المضيء".</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="time-dot"></div>
                     <div class="time-content glass-card">
-                        <h4>النهاية</h4>
-                        <p>كل مهارة يتقنها تُسجل تلقائياً في "جواز سفره المهاري".</p>
+                        <h4 data-cms="journey.step4Title">النهاية</h4>
+                        <p data-cms="journey.step4Desc">كل مهارة يتقنها تُسجل تلقائياً في "جواز سفره المهاري".</p>
                     </div>
                 </div>
             </div>
+        </div>
     </section>
 
     <!-- 1. Interactive Sandbox -->
     <section id="sandbox" class="section">
         <div class="container">
             <div class="section-header">
-                <h2>مختبر سَنَع التفاعلي</h2>
+                <h2 data-cms="sandbox.headerTitle">مختبر سَنَع التفاعلي</h2>
                 <div class="divider"></div>
-                <p style="margin-top: 1rem; font-size: 1.2rem;">اكتشف كيف تحوّل سَنَع محيط الطفل إلى واجهة تفاعلية خفية
+                <p style="margin-top: 1rem; font-size: 1.2rem;" data-cms="sandbox.subtitle">اكتشف كيف تحوّل سَنَع محيط الطفل إلى واجهة تفاعلية خفية
                     (انقر على النقاط المضيئة)</p>
             </div>
 
             <div class="sandbox-container scroll-reveal">
                 <div class="sandbox-room">
-                    <img src="assets/sana_hero.png" alt="غرفة تفاعلية" class="room-bg"
+                    <img src="assets/sana_hero.png" alt="غرفة تفاعلية" class="room-bg" data-cms-img="sandbox.image"
                         onerror="this.src='https://images.unsplash.com/photo-1513694203232-719a280e022f?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80';">
                     <!-- Hotspots -->
                     <div class="hotspot" style="top: 30%; left: 20%;" data-title="الملصقات السحرية (الخزانة)"
+                        data-cms-title="sandbox.spot1Title" data-cms-desc="sandbox.spot1Desc"
                         data-desc="تلصق على خزانة الملابس. عند لمسها، يظهر توجيه صوتي أو هولوغرام يشرح للطفل كيفية ارتداء ملابسه بشكل مستقل.">
                         <span class="pulse"></span>
                     </div>
                     <div class="hotspot" style="top: 75%; left: 50%;" data-title="المسار المضيء (الأرضية)"
+                        data-cms-title="sandbox.spot2Title" data-cms-desc="sandbox.spot2Desc"
                         data-desc="إضاءة تبرز الألعاب المبعثرة على الأرض لتشجيع الطفل على إرجاعها لصندوق الألعاب وترتيب غرفته.">
                         <span class="pulse"></span>
                     </div>
                     <div class="hotspot" style="top: 40%; left: 75%;" data-title="المرآة الاجتماعية"
+                        data-cms-title="sandbox.spot3Title" data-cms-desc="sandbox.spot3Desc"
                         data-desc="كاميرا مدمجة تحلل لغة الجسد وتدرب الطفل على التواصل البصري دون الحاجة للنظر إلى شاشة هاتف.">
                         <span class="pulse"></span>
                     </div>
                 </div>
                 <div class="sandbox-info glass-card" id="sandbox-info">
-                    <h3 id="hotspot-title">انقر على النقاط لاكتشاف التقنية</h3>
-                    <p id="hotspot-desc">التقنيات الخفية تدمج التعليم داخل البيئة المادية. جرب التفاعل مع عناصر الغرفة.
+                    <h3 id="hotspot-title" data-cms="sandbox.defaultTitle">انقر على النقاط لاكتشاف التقنية</h3>
+                    <p id="hotspot-desc" data-cms="sandbox.defaultDesc">التقنيات الخفية تدمج التعليم داخل البيئة المادية. جرب التفاعل مع عناصر الغرفة.
                     </p>
                 </div>
             </div>
@@ -301,9 +305,9 @@
     <section id="impact" class="section">
         <div class="container">
             <div class="section-header">
-                <h2>لوحة تحكم الأثر الاجتماعي (Social ROI)</h2>
+                <h2 data-cms="impact.headerTitle">لوحة تحكم الأثر الاجتماعي (Social ROI)</h2>
                 <div class="divider"></div>
-                <p style="margin-top: 1rem; font-size: 1.2rem; color: var(--text-light);">احسب التوفير المالي المجتمعي
+                <p style="margin-top: 1rem; font-size: 1.2rem; color: var(--text-light);" data-cms="impact.subtitle">احسب التوفير المالي المجتمعي
                     التقديري عند تبني تقنيات سَنَع.</p>
             </div>
 
@@ -324,18 +328,18 @@
                 <div class="calc-results">
                     <div class="result-box"
                         style="background: rgba(0, 242, 254, 0.05); border: 1px solid rgba(0, 242, 254, 0.2); box-shadow: var(--glow-cyan);">
-                        <h4 style="color: var(--text-light);">التوفير التقديري (بالريال)</h4>
+                        <h4 style="color: var(--text-light);" data-cms="impact.savingsTitle">التوفير التقديري (بالريال)</h4>
                         <div class="result-number" id="savings-result"
                             style="text-shadow: 0 0 20px rgba(0, 242, 254, 0.5);">500,000</div>
-                        <p style="color: var(--text-light);">توفير من تكاليف التربية الخاصة</p>
+                        <p style="color: var(--text-light);" data-cms="impact.savingsDesc">توفير من تكاليف التربية الخاصة</p>
                     </div>
                     <div class="result-box accent"
                         style="background: rgba(126, 255, 219, 0.05); border: 1px solid rgba(126, 255, 219, 0.2); box-shadow: var(--glow-mint);">
-                        <h4 style="color: var(--text-light);">الأثر التراكمي الموثق</h4>
+                        <h4 style="color: var(--text-light);" data-cms="impact.skillsTitle">الأثر التراكمي الموثق</h4>
                         <div class="result-number" id="skills-result"
                             style="color: var(--primary-light); text-shadow: 0 0 20px rgba(126, 255, 219, 0.5);">12,000
                         </div>
-                        <p style="color: var(--text-light);">مهارة مكتسبة على البلوك تشين</p>
+                        <p style="color: var(--text-light);" data-cms="impact.skillsDesc">مهارة مكتسبة على البلوك تشين</p>
                     </div>
                 </div>
             </div>
@@ -346,7 +350,7 @@
     <section id="roadmap" class="section">
         <div class="container">
             <div class="section-header text-white">
-                <h2>خارطة طريق التنفيذ</h2>
+                <h2 data-cms="roadmap.headerTitle">خارطة طريق التنفيذ</h2>
                 <div class="divider white"></div>
             </div>
 
@@ -354,29 +358,29 @@
                 <div class="timeline-item">
                     <div class="time-dot"></div>
                     <div class="time-content glass-card">
-                        <h4 style="color: var(--primary-light);">المرحلة الأولى</h4>
-                        <p style="color: var(--text-light);">تطوير المستشعرات والنظام المركزي.</p>
+                        <h4 style="color: var(--primary-light);" data-cms="roadmap.phase1Title">المرحلة الأولى</h4>
+                        <p style="color: var(--text-light);" data-cms="roadmap.phase1Desc">تطوير المستشعرات والنظام المركزي.</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="time-dot"></div>
                     <div class="time-content glass-card">
-                        <h4 style="color: var(--primary-light);">المرحلة الثانية</h4>
-                        <p style="color: var(--text-light);">الشراكات والتقييم مع النادي العلمي لاختبار النظام.</p>
+                        <h4 style="color: var(--primary-light);" data-cms="roadmap.phase2Title">المرحلة الثانية</h4>
+                        <p style="color: var(--text-light);" data-cms="roadmap.phase2Desc">الشراكات والتقييم مع النادي العلمي لاختبار النظام.</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="time-dot"></div>
                     <div class="time-content glass-card">
-                        <h4 style="color: var(--primary-light);">المرحلة الثالثة</h4>
-                        <p style="color: var(--text-light);">إطلاق جواز السفر المهاري عبر البلوك تشين.</p>
+                        <h4 style="color: var(--primary-light);" data-cms="roadmap.phase3Title">المرحلة الثالثة</h4>
+                        <p style="color: var(--text-light);" data-cms="roadmap.phase3Desc">إطلاق جواز السفر المهاري عبر البلوك تشين.</p>
                     </div>
                 </div>
                 <div class="timeline-item">
                     <div class="time-dot"></div>
                     <div class="time-content glass-card">
-                        <h4 style="color: var(--primary-light);">المرحلة الرابعة</h4>
-                        <p style="color: var(--text-light);">التوسع الوطني والدمج في برامج التربية الخاصة الشاملة.</p>
+                        <h4 style="color: var(--primary-light);" data-cms="roadmap.phase4Title">المرحلة الرابعة</h4>
+                        <p style="color: var(--text-light);" data-cms="roadmap.phase4Desc">التوسع الوطني والدمج في برامج التربية الخاصة الشاملة.</p>
                     </div>
                 </div>
             </div>
@@ -387,45 +391,36 @@
     <section id="trust" class="section">
         <div class="container">
             <div class="section-header">
-                <h2>الأساس العلمي وشركاء النجاح</h2>
+                <h2 data-cms="science.headerTitle">الأساس العلمي وشركاء النجاح</h2>
                 <div class="divider"></div>
             </div>
 
             <div class="grid-2-col scroll-reveal">
                 <div class="science-card glass-card">
-                    <h3 style="color: var(--primary-light);">الأساس العلمي (Neuroscience)</h3>
+                    <h3 style="color: var(--primary-light);" data-cms="science.scienceTitle">الأساس العلمي (Neuroscience)</h3>
                     <ul class="idea-list" style="margin-top: 1rem;">
-                        <li><strong style="color: white;">التعلم المجسد:</strong> التعلم الحركي يخفف العبء المعرفي بنسبة
-                            40% مقارنة بالشاشات.</li>
-                        <li><strong style="color: white;">الذاكرة العضلية:</strong> ربط المهام اليومية بحركات محسوسة
-                            يسرّع الاستقلالية.</li>
-                        <li><strong style="color: white;">تكنولوجيا المهارات:</strong> منهجية معتمدة لنقل وترسيخ
-                            المهارات الرقمية والحياتية.</li>
+                        <li><strong style="color: white;" data-cms="science.science1Title">التعلم المجسد:</strong> <span data-cms="science.science1Desc">التعلم الحركي يخفف العبء المعرفي بنسبة 40% مقارنة بالشاشات.</span></li>
+                        <li><strong style="color: white;" data-cms="science.science2Title">الذاكرة العضلية:</strong> <span data-cms="science.science2Desc">ربط المهام اليومية بحركات محسوسة يسرّع الاستقلالية.</span></li>
+                        <li><strong style="color: white;" data-cms="science.science3Title">تكنولوجيا المهارات:</strong> <span data-cms="science.science3Desc">منهجية معتمدة لنقل وترسيخ المهارات الرقمية والحياتية.</span></li>
                     </ul>
                 </div>
 
                 <div class="ethics-card glass-card">
-                    <h3 style="color: var(--primary-light);">ميثاق الخصوصية والأخلاقيات</h3>
+                    <h3 style="color: var(--primary-light);" data-cms="science.ethicsTitle">ميثاق الخصوصية والأخلاقيات</h3>
                     <ul class="idea-list" style="margin-top: 1rem;">
-                        <li><strong style="color: white;">تشفير كامل:</strong> بيانات الطفل مشفرة ولا تُحفظ في الكاميرات
-                            محلياً.</li>
-                        <li><strong style="color: white;">خصوصية المهارة:</strong> توثيق البلوك تشين يمنع التلاعب ويضمن
-                            أمن البيانات.</li>
-                        <li><strong style="color: white;">لا للاستغلال:</strong> نرفض استخدام بيانات الأطفال لأغراض
-                            تجارية.</li>
+                        <li><strong style="color: white;" data-cms="science.ethics1Title">تشفير كامل:</strong> <span data-cms="science.ethics1Desc">بيانات الطفل مشفرة ولا تُحفظ في الكاميرات محلياً.</span></li>
+                        <li><strong style="color: white;" data-cms="science.ethics2Title">خصوصية المهارة:</strong> <span data-cms="science.ethics2Desc">توثيق البلوك تشين يمنع التلاعب ويضمن أمن البيانات.</span></li>
+                        <li><strong style="color: white;" data-cms="science.ethics3Title">لا للاستغلال:</strong> <span data-cms="science.ethics3Desc">نرفض استخدام بيانات الأطفال لأغراض تجارية.</span></li>
                     </ul>
                 </div>
             </div>
 
             <div class="partnerships scroll-reveal delay-1" style="margin-top: 4rem; text-align: center;">
-                <h3 style="margin-bottom: 2rem; color: var(--text-light);">الشركاء المستهدفون للنموذج الأولي</h3>
+                <h3 style="margin-bottom: 2rem; color: var(--text-light);" data-cms="science.partnersTitle">الشركاء المستهدفون للنموذج الأولي</h3>
                 <div class="partner-logos" style="filter: grayscale(100%) brightness(200%); opacity: 0.7;">
-                    <div class="partner-placeholder" style="border-color: rgba(255,255,255,0.2); color: white;">النادي
-                        العلمي القطري</div>
-                    <div class="partner-placeholder" style="border-color: rgba(255,255,255,0.2); color: white;">وزارة
-                        التربية والتعليم</div>
-                    <div class="partner-placeholder" style="border-color: rgba(255,255,255,0.2); color: white;">مراكز
-                        التأهيل المتخصصة</div>
+                    <div class="partner-placeholder" style="border-color: rgba(255,255,255,0.2); color: white;" data-cms="science.partner1">النادي العلمي القطري</div>
+                    <div class="partner-placeholder" style="border-color: rgba(255,255,255,0.2); color: white;" data-cms="science.partner2">وزارة التربية والتعليم</div>
+                    <div class="partner-placeholder" style="border-color: rgba(255,255,255,0.2); color: white;" data-cms="science.partner3">مراكز التأهيل المتخصصة</div>
                 </div>
             </div>
         </div>
@@ -436,19 +431,19 @@
         <div class="container">
             <div class="cta-grid scroll-reveal">
                 <div class="cta-card glass-card investor" style="border-top-color: var(--primary-light);">
-                    <h3 style="color: white;">للمستثمرين والداعمين</h3>
-                    <p style="color: var(--text-light);">استثمر في الجيل القادم من التقنيات الدامجة.</p>
-                    <a href="#impact" class="btn-primary" style="margin-top: 1rem;">اطلب ملف العرض</a>
+                    <h3 style="color: white;" data-cms="ctas.card1Title">للمستثمرين والداعمين</h3>
+                    <p style="color: var(--text-light);" data-cms="ctas.card1Desc">استثمر في الجيل القادم من التقنيات الدامجة.</p>
+                    <a href="#impact" class="btn-primary" style="margin-top: 1rem;" data-cms="ctas.card1Btn" data-cms-link="ctas.card1Link">اطلب ملف العرض</a>
                 </div>
                 <div class="cta-card glass-card govt" style="border-top-color: var(--primary-color);">
-                    <h3 style="color: white;">للجهات الحكومية والابتكارية</h3>
-                    <p style="color: var(--text-light);">كن شريكاً في رعاية وتصنيع النموذج الأولي.</p>
-                    <a href="#trust" class="btn-primary" style="margin-top: 1rem;">ناقش فرص الرعاية</a>
+                    <h3 style="color: white;" data-cms="ctas.card2Title">للجهات الحكومية والابتكارية</h3>
+                    <p style="color: var(--text-light);" data-cms="ctas.card2Desc">كن شريكاً في رعاية وتصنيع النموذج الأولي.</p>
+                    <a href="#trust" class="btn-primary" style="margin-top: 1rem;" data-cms="ctas.card2Btn" data-cms-link="ctas.card2Link">ناقش فرص الرعاية</a>
                 </div>
                 <div class="cta-card glass-card parents" style="border-top-color: var(--primary-light);">
-                    <h3 style="color: white;">لأولياء الأمور والمختصين</h3>
-                    <p style="color: var(--text-light);">سجل لتكون من أوائل مجربي المنظومة.</p>
-                    <a href="#" class="btn-primary" style="margin-top: 1rem;">القائمة التجريبية</a>
+                    <h3 style="color: white;" data-cms="ctas.card3Title">لأولياء الأمور والمختصين</h3>
+                    <p style="color: var(--text-light);" data-cms="ctas.card3Desc">سجل لتكون من أوائل مجربي المنظومة.</p>
+                    <a href="#" class="btn-primary" style="margin-top: 1rem;" data-cms="ctas.card3Btn" data-cms-link="ctas.card3Link">القائمة التجريبية</a>
                 </div>
             </div>
         </div>
@@ -469,6 +464,7 @@
     <!-- Scripts -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="supabase.js?v=2"></script>
+    <script src="site-content.js?v=1"></script>
 
     <script src="components/navbar.js?v=3"></script>
     <script src="components/footer.js?v=3"></script>
