@@ -142,7 +142,8 @@ async function initDashboard() {
     // 2. Setup navigation tabs
     setupTabNavigation();
 
-    // 3. Test Supabase connection
+    // 3. Setup Supabase config form & test connection
+    initSupabaseCredentialsForm();
     testSupabaseConnection();
 
     // 4. Remote content fetch in background
@@ -447,6 +448,58 @@ async function testSupabaseConnection() {
         badge.textContent = "تنبيه: " + e.message;
         badge.style.color = "var(--warning)";
     }
+}
+
+function initSupabaseCredentialsForm() {
+    const urlInput = document.getElementById('supabaseUrlInput');
+    const keyInput = document.getElementById('supabaseKeyInput');
+    if (!urlInput || !keyInput) return;
+
+    const currentUrl = localStorage.getItem('sana_supabase_url') || 'https://faovafodbyauohwremth.supabase.co';
+    const currentKey = localStorage.getItem('sana_supabase_key') || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhb3ZhZm9kYnlhdW9od3JlbXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNTU4ODEsImV4cCI6MjA5ODgzMTg4MX0.p8QvMw3jj_Nx3VdJ-0WZFRg7CGnA8dI-ZJYyI8M4qh4';
+
+    urlInput.value = currentUrl;
+    keyInput.value = currentKey;
+}
+
+function saveCustomSupabaseConfig() {
+    const url = document.getElementById('supabaseUrlInput').value.trim();
+    const key = document.getElementById('supabaseKeyInput').value.trim();
+
+    if (!url || !key) {
+        showToast("يرجى إدخال الرابط والمفتاح بشكل صحيح", "error");
+        return;
+    }
+
+    localStorage.setItem('sana_supabase_url', url);
+    localStorage.setItem('sana_supabase_key', key);
+
+    if (window.supabase) {
+        window.supabaseClient = window.supabase.createClient(url, key);
+    }
+
+    showToast("تم حفظ المفاتيح الجديدة بنجاح! جارٍ فحص الاتصال...", "success");
+    testSupabaseConnection();
+}
+
+function resetDefaultSupabaseConfig() {
+    localStorage.removeItem('sana_supabase_url');
+    localStorage.removeItem('sana_supabase_key');
+
+    const defaultUrl = 'https://faovafodbyauohwremth.supabase.co';
+    const defaultKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZhb3ZhZm9kYnlhdW9od3JlbXRoIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODMyNTU4ODEsImV4cCI6MjA5ODgzMTg4MX0.p8QvMw3jj_Nx3VdJ-0WZFRg7CGnA8dI-ZJYyI8M4qh4';
+
+    const urlInput = document.getElementById('supabaseUrlInput');
+    const keyInput = document.getElementById('supabaseKeyInput');
+    if (urlInput) urlInput.value = defaultUrl;
+    if (keyInput) keyInput.value = defaultKey;
+
+    if (window.supabase) {
+        window.supabaseClient = window.supabase.createClient(defaultUrl, defaultKey);
+    }
+
+    showToast("تمت استعادة إعدادات سوبابيز الافتراضية", "info");
+    testSupabaseConnection();
 }
 
 function copySqlScript() {

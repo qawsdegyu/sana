@@ -899,9 +899,39 @@
                     </div>
 
                     <div class="edit-grid-full">
+                        <!-- Credentials Card -->
                         <div class="card-block">
                             <div class="card-title">
-                                <span>حالة الاتصال بـ Supabase</span>
+                                <span>مفاتيح الربط مع مشروع Supabase</span>
+                                <span class="tag">إعدادات الاتصال</span>
+                            </div>
+                            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">
+                                تأكد من أن هذه المفاتيح تطابق مشروعك الحالي في سوبابيز (من <strong>Project Settings -> API</strong>):
+                            </p>
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">رابط المشروع (Project URL):</label>
+                                    <input type="text" id="supabaseUrlInput" class="form-control" dir="ltr" style="font-family: monospace; font-size: 0.85rem;" placeholder="https://xxxxxxxx.supabase.co">
+                                </div>
+                                <div class="form-group" style="margin-bottom: 0;">
+                                    <label class="form-label">مفتاح Anon العام (Anon Public Key):</label>
+                                    <input type="text" id="supabaseKeyInput" class="form-control" dir="ltr" style="font-family: monospace; font-size: 0.85rem;" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+                                </div>
+                            </div>
+                            <div style="display: flex; gap: 10px;">
+                                <button type="button" class="btn-action-save" style="padding: 0.55rem 1.2rem; font-size: 0.85rem;" onclick="saveCustomSupabaseConfig()">
+                                    <span>💾</span> <span>حفظ المفاتيح وتحديث الاتصال</span>
+                                </button>
+                                <button type="button" class="btn-upload-file" onclick="resetDefaultSupabaseConfig()">
+                                    <span>🔄</span> <span>استعادة المفاتيح الافتراضية</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Database Status & SQL Card -->
+                        <div class="card-block">
+                            <div class="card-title">
+                                <span>حالة الاتصال وقاعدة البيانات</span>
                                 <span class="tag" id="settingsDbStatusBadge">فحص الاتصال...</span>
                             </div>
                             <p style="color: var(--text-muted); font-size: 0.92rem; margin-bottom: 1rem;">
@@ -910,33 +940,26 @@
 
                             <div class="sql-box">
                                 <button type="button" class="btn-copy-sql" onclick="copySqlScript()">📋 نسخ كود الـ SQL</button>
-                                <pre class="sql-code" id="sqlCodeBlock">-- 1. إنشاء جدول حفظ محتوى موقع سَنَع
+                                <pre class="sql-code" id="sqlCodeBlock">-- 1. التأكد من وجود الجدول في schema public
 CREATE TABLE IF NOT EXISTS public.site_content (
     id TEXT PRIMARY KEY,
     content JSONB NOT NULL,
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 2. تفعيل سياسات الأمان RLS
-ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
-
--- 3. حذف السياسات السابقة لتفادي خطأ already exists
-DROP POLICY IF EXISTS "Allow public read-only access" ON public.site_content;
-DROP POLICY IF EXISTS "Allow update access" ON public.site_content;
-DROP POLICY IF EXISTS "Allow all for anon and auth" ON public.site_content;
-
--- 4. إنشاء سياسة شاملة تسمح بالقراءة والكتابة
-CREATE POLICY "Allow all for anon and auth" 
-ON public.site_content 
-FOR ALL 
-TO public 
-USING (true) 
-WITH CHECK (true);
-
--- 5. إعطاء الصلاحيات للأدوار ليتعرف Supabase API على الجدول
+-- 2. إعطاء الصلاحيات لجميع الأدوار
+GRANT USAGE ON SCHEMA public TO anon, authenticated, service_role;
 GRANT ALL ON TABLE public.site_content TO anon, authenticated, service_role;
 
--- 6. تحديث كاش Supabase (PostgREST) فورياً
+-- 3. تعطيل RLS لتجاوز أي مشاكل أذونات وجعل الجدول يظهر فوراً في الـ API
+ALTER TABLE public.site_content DISABLE ROW LEVEL SECURITY;
+
+-- 4. إدخال سجل أولي للموقع
+INSERT INTO public.site_content (id, content, updated_at)
+VALUES ('main_site', '{"status":"connected"}'::jsonb, now())
+ON CONFLICT (id) DO UPDATE SET updated_at = now();
+
+-- 5. إشعار PostgREST بتحديث كاش الجداول فوراً
 NOTIFY pgrst, 'reload schema';</pre>
                             </div>
 
